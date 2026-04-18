@@ -47,5 +47,20 @@ class Organization extends Model
     {
         return $this->hasMany(GiftCertificate::class);
     }
+
+    public function stores(): HasMany
+    {
+        return $this->hasMany(Store::class);
+    }
+
+    public function transactionFeePercent(): float
+    {
+        return match (strtolower((string) $this->plan_name)) {
+            'start' => 2.0,
+            'pro' => 1.5,
+            'free', 'demo', 'standard' => 3.0,
+            default => 3.0,
+        };
+    }
 }
 

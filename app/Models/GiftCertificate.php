@@ -12,17 +12,30 @@ class GiftCertificate extends Model
 {
     use HasFactory;
 
+    public const CATEGORY_HORECA = 'horeca';
+
+    public const CATEGORY_RETAIL = 'retail';
+
+    public const CATEGORY_SERVICES = 'services';
+
     protected $fillable = [
         'organization_id',
+        'store_id',
+        'template_id',
         'code',
+        'title',
         'amount',
         'balance',
         'currency',
+        'category',
+        'validity_days',
+        'terms_of_use',
         'status',
         'expires_at',
         'recipient_name',
         'recipient_email',
         'notes',
+        'created_by',
     ];
 
     protected $casts = [
@@ -52,6 +65,11 @@ class GiftCertificate extends Model
     public function organization(): BelongsTo
     {
         return $this->belongsTo(Organization::class);
+    }
+
+    public function store(): BelongsTo
+    {
+        return $this->belongsTo(Store::class, 'store_id');
     }
 
     public function template(): BelongsTo

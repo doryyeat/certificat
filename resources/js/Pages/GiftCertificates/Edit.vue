@@ -4,12 +4,21 @@ import { Head, Link, useForm } from '@inertiajs/vue3';
 
 const props = defineProps({
     certificate: Object,
+    stores: {
+        type: Array,
+        default: () => [],
+    },
 });
 
 const form = useForm({
+    title: props.certificate.title ?? '',
     amount: props.certificate.amount,
     balance: props.certificate.balance,
     currency: props.certificate.currency,
+    validity_days: props.certificate.validity_days ?? 365,
+    category: props.certificate.category ?? 'horeca',
+    terms_of_use: props.certificate.terms_of_use ?? '',
+    store_id: props.certificate.store_id ?? props.stores[0]?.id ?? '',
     expires_at: props.certificate.expires_at
         ? props.certificate.expires_at.substring(0, 10)
         : '',
@@ -25,11 +34,11 @@ const redeemForm = useForm({
 });
 
 const submit = () => {
-    form.put(route('business.certificates.update', props.certificate.id));
+    form.put(route('certificates.update', props.certificate.id));
 };
 
 const redeem = () => {
-    redeemForm.post(route('business.certificates.redeem', props.certificate.id), {
+    redeemForm.post(route('certificates.redeem', props.certificate.id), {
         preserveScroll: true,
         onSuccess: () => {
             redeemForm.reset('amount', 'description');
@@ -71,6 +80,132 @@ const redeem = () => {
                             </h3>
 
                             <form @submit.prevent="submit" class="space-y-6">
+                                <div>
+                                    <label
+                                        for="title"
+                                        class="block text-sm font-medium text-gray-700"
+                                    >
+                                        Название для каталога
+                                    </label>
+                                    <input
+                                        id="title"
+                                        v-model="form.title"
+                                        type="text"
+                                        maxlength="200"
+                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                    />
+                                    <div
+                                        v-if="form.errors.title"
+                                        class="mt-1 text-sm text-red-600"
+                                    >
+                                        {{ form.errors.title }}
+                                    </div>
+                                </div>
+
+                                <div class="grid gap-4 sm:grid-cols-2">
+                                    <div>
+                                        <label
+                                            for="category"
+                                            class="block text-sm font-medium text-gray-700"
+                                        >
+                                            Категория
+                                        </label>
+                                        <select
+                                            id="category"
+                                            v-model="form.category"
+                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                        >
+                                            <option value="horeca">
+                                                HoReCa
+                                            </option>
+                                            <option value="retail">
+                                                Розничная торговля
+                                            </option>
+                                            <option value="services">
+                                                Сфера услуг
+                                            </option>
+                                        </select>
+                                        <div
+                                            v-if="form.errors.category"
+                                            class="mt-1 text-sm text-red-600"
+                                        >
+                                            {{ form.errors.category }}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label
+                                            for="validity_days"
+                                            class="block text-sm font-medium text-gray-700"
+                                        >
+                                            Срок действия (дней, 1–1095)
+                                        </label>
+                                        <input
+                                            id="validity_days"
+                                            v-model="form.validity_days"
+                                            type="number"
+                                            min="1"
+                                            max="1095"
+                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                        />
+                                        <div
+                                            v-if="form.errors.validity_days"
+                                            class="mt-1 text-sm text-red-600"
+                                        >
+                                            {{ form.errors.validity_days }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label
+                                        for="store_id"
+                                        class="block text-sm font-medium text-gray-700"
+                                    >
+                                        Магазин (точка гашения)
+                                    </label>
+                                    <select
+                                        id="store_id"
+                                        v-model="form.store_id"
+                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                    >
+                                        <option
+                                            v-for="s in stores"
+                                            :key="s.id"
+                                            :value="s.id"
+                                        >
+                                            {{ s.name }} — {{ s.address }}
+                                        </option>
+                                    </select>
+                                    <div
+                                        v-if="form.errors.store_id"
+                                        class="mt-1 text-sm text-red-600"
+                                    >
+                                        {{ form.errors.store_id }}
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label
+                                        for="terms_of_use"
+                                        class="block text-sm font-medium text-gray-700"
+                                    >
+                                        Условия использования
+                                    </label>
+                                    <textarea
+                                        id="terms_of_use"
+                                        v-model="form.terms_of_use"
+                                        rows="3"
+                                        maxlength="1000"
+                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                    />
+                                    <div
+                                        v-if="form.errors.terms_of_use"
+                                        class="mt-1 text-sm text-red-600"
+                                    >
+                                        {{ form.errors.terms_of_use }}
+                                    </div>
+                                </div>
+
                                 <div class="grid gap-4 sm:grid-cols-2">
                                     <div>
                                         <label
@@ -220,7 +355,7 @@ const redeem = () => {
                                         >
                                             <option value="draft">Черновик</option>
                                             <option value="active">Активен</option>
-                                            <option value="redeemed">Погашен</option>
+                                            <option value="redeemed">Использован</option>
                                             <option value="expired">Истёк</option>
                                             <option value="cancelled">Отменён</option>
                                         </select>

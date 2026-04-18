@@ -13,8 +13,11 @@ class Order extends Model
     use HasFactory;
 
     public const STATUS_DRAFT = 'draft';
+
     public const STATUS_PENDING = 'pending';
+
     public const STATUS_PAID = 'paid';
+
     public const STATUS_CANCELLED = 'cancelled';
 
     protected $fillable = [
@@ -26,6 +29,11 @@ class Order extends Model
         'total_products',
         'total_discount',
         'notes',
+        'paid_at',           // добавьте
+        'payment_id',        // добавьте
+        'recipient_name',    // добавьте
+        'recipient_email',   // добавьте
+        'message',
     ];
 
     protected $casts = [
@@ -56,4 +64,3 @@ class Order extends Model
             ->withTimestamps();
     }
 }
-

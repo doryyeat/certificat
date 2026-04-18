@@ -4,8 +4,8 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
@@ -13,7 +13,7 @@ use Spatie\Permission\Traits\HasRoles;
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable, HasRoles;
+    use HasFactory, HasRoles, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -24,10 +24,12 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'phone',
-        'avatar',
         'organization_id',
         'client_type',
+        'phone',
+        'avatar',
+        'is_blocked',
+        'block_reason',
     ];
 
     /**
@@ -50,33 +52,12 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_blocked' => 'bool',
         ];
     }
 
     public function organization(): BelongsTo
     {
         return $this->belongsTo(Organization::class);
-    }
-
-    public function business()
-    {
-        return $this->hasOne(Business::class);
-    }
-
-    public function getAvatarUrlAttribute(): ?string
-    {
-        return $this->avatar ? asset('storage/' . $this->avatar) : null;
-    }
-
-    // Проверка, является ли пользователь покупателем
-    public function isClient(): bool
-    {
-        return $this->client_type === 'client' || $this->hasRole('client');
-    }
-
-    // Проверка, является ли пользователь бизнесом
-    public function isBusiness(): bool
-    {
-        return $this->client_type === 'business' || $this->hasRole('business');
     }
 }

@@ -14,7 +14,7 @@ watch(
     search,
     () => {
         router.get(
-            route('business.products.index'),
+            route('products.index'),
             { search: search.value },
             { preserveState: true, replace: true },
         );
@@ -32,7 +32,7 @@ watch(
                     Товары
                 </h2>
                 <Link
-                    :href="route('business.products.create')"
+                    :href="route('products.create')"
                     class="inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                 >
                     Новый товар
@@ -100,7 +100,7 @@ watch(
                                 </td>
                                 <td class="whitespace-nowrap px-4 py-3 text-right text-sm sm:px-6">
                                     <Link
-                                        :href="route('business.products.edit', product.id)"
+                                        :href="route('products.edit', product.id)"
                                         class="text-indigo-600 hover:text-indigo-900"
                                     >
                                         Открыть

@@ -21,6 +21,7 @@ class AuthenticatedSessionController extends Controller
         return Inertia::render('Auth/Login', [
             'canResetPassword' => Route::has('password.request'),
             'status' => session('status'),
+            'clientType' => request()->cookie('client_type', 'client'),
         ]);
     }
 
@@ -32,11 +33,22 @@ class AuthenticatedSessionController extends Controller
         $request->authenticate();
 
         $request->session()->regenerate();
-        if (Auth::user()->hasRole('business')) {
-        return redirect()->intended(route('business.dashboard', absolute: false));
-        }elseif (Auth::user()->hasRole('client')) {
-            return redirect()->intended(route('client.certificates.index', absolute: false));
+
+        $user = Auth::user();
+
+        if ($user->hasRole('admin')) {
+            return redirect()->intended(route('admin.dashboard', absolute: false));
         }
+
+        if ($user->hasRole('business')) {
+            return redirect()->intended(route('dashboard', absolute: false));
+        }
+
+        if ($user->hasRole('client')) {
+            return redirect()->intended(route('dashboard', absolute: false));
+        }
+
+        return redirect()->intended(route('dashboard', absolute: false));
     }
 
     /**

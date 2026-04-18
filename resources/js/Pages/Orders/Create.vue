@@ -57,7 +57,7 @@ const onProductChange = (index) => {
 };
 
 const submit = () => {
-    form.post(route('business.orders.store'));
+    form.post(route('orders.store'));
 };
 </script>
 
@@ -71,7 +71,7 @@ const submit = () => {
                     Новый заказ
                 </h2>
                 <Link
-                    :href="route('business.orders.index')"
+                    :href="route('orders.index')"
                     class="text-sm text-gray-500 hover:text-gray-700"
                 >
                     Назад к заказам
@@ -270,7 +270,7 @@ const submit = () => {
 
                                 <div class="flex items-center justify-end gap-3">
                                     <Link
-                                        :href="route('business.orders.index')"
+                                        :href="route('orders.index')"
                                         class="text-sm text-gray-500 hover:text-gray-700"
                                     >
                                         Отмена

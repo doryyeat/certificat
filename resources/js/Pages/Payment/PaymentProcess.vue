@@ -24,11 +24,10 @@ const errorMessage = ref('');
 const submitPayment = () => {
     loading.value = true;
 
-    // Отправляем запрос на оплату
-    form.post(route('payment.process', { order: props.order.id }), {
+    // Используйте правильное имя маршрута с префиксом client.
+    form.post(route('client.payment.process', { order: props.order.id }), {
         preserveScroll: true,
         onSuccess: () => {
-            // Перенаправление на страницу успеха
             router.visit(route('payment.success'));
         },
         onError: (errors) => {

@@ -15,7 +15,7 @@ watch(
     [status, search],
     () => {
         router.get(
-            route('business.orders.index'),
+            route('orders.index'),
             { status: status.value, search: search.value },
             { preserveState: true, replace: true },
         );
@@ -34,7 +34,7 @@ watch(
                     Заказы
                 </h2>
                 <Link
-                    :href="route('business.orders.create')"
+                    :href="route('orders.create')"
                     class="inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                 >
                     Новый заказ
@@ -102,7 +102,7 @@ watch(
                             >
                                 <td class="whitespace-nowrap px-4 py-3 text-sm font-mono text-indigo-700 sm:px-6">
                                     <Link
-                                        :href="route('business.orders.show', order.id)"
+                                        :href="route('orders.show', order.id)"
                                         class="hover:underline"
                                     >
                                         {{ order.number }}

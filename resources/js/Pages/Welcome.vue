@@ -33,8 +33,8 @@ const heroContent = computed(() => {
             title: 'Платформа для управления',
             titleGradient: 'подарочными сертификатами',
             description: 'Создавайте, продавайте и отслеживайте подарочные сертификаты. Увеличьте средний чек и привлекайте новых клиентов с помощью умной системы.',
-            cta: 'Начать продавать',
-            ctaLink: route('register'),
+            cta: 'Подать заявку',
+            ctaLink: route('business.apply'),
             features: [
                 { icon: '📊', text: 'Аналитика продаж' },
                 { icon: '🎫', text: 'Умное разделение' },
@@ -127,7 +127,19 @@ onMounted(() => {
 
         <!-- Основной контент -->
         <div class="relative z-10">
+            <div
+                v-if="$page.props.flash?.message"
+                class="container mx-auto px-6 pt-4"
+            >
+                <div
+                    class="rounded-lg border border-emerald-400/30 bg-emerald-500/20 px-4 py-3 text-sm text-emerald-100"
+                >
+                    {{ $page.props.flash.message }}
+                </div>
+            </div>
             <!-- Навигация -->
+
+            <header>
             <nav class="container mx-auto px-6 py-8">
                 <div class="flex items-center justify-between">
                     <!-- Логотип -->
@@ -180,8 +192,15 @@ onMounted(() => {
                                 <span class="relative z-10">Вход</span>
                             </Link>
 
-                            <Link v-if="canRegister" :href="route('register')"
+                            <Link  v-if="canRegister && selectedType === 'client'" :href="route('register')"
                                   class="relative group px-8 py-3 overflow-hidden rounded-full bg-gradient-to-r from-pink-500 to-yellow-500 hover:from-pink-600 hover:to-yellow-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                                <span class="relative z-10 font-semibold">Регистрация</span>
+                                <div class="absolute inset-0 bg-white/20 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-500"></div>
+                            </Link>
+                            <Link v-else
+                                :href="route('business.apply')"
+                                  class="relative group px-8 py-3 overflow-hidden rounded-full bg-gradient-to-r from-pink-500 to-yellow-500 hover:from-pink-600 hover:to-yellow-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+
                                 <span class="relative z-10 font-semibold">Регистрация</span>
                                 <div class="absolute inset-0 bg-white/20 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-500"></div>
                             </Link>
@@ -189,7 +208,7 @@ onMounted(() => {
                     </div>
                 </div>
             </nav>
-
+            </header>
             <!-- Hero секция -->
             <section class="container mx-auto px-6 pt-20 pb-32">
                 <div class="grid lg:grid-cols-2 gap-16 items-center">

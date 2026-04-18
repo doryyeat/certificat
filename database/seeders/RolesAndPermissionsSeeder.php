@@ -3,15 +3,16 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 
 class RolesAndPermissionsSeeder extends Seeder
 {
     public function run(): void
     {
         // Сброс кэша прав
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         // Создаем права для покупателей
         $clientPermissions = [
@@ -35,19 +36,16 @@ class RolesAndPermissionsSeeder extends Seeder
             'redeem certificates',
         ];
 
-        // Создаем все права
         foreach (array_merge($clientPermissions, $businessPermissions) as $permission) {
-            Permission::create(['name' => $permission]);
+            Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'web']);
         }
 
-        // Создаем роли
-        $clientRole = Role::create(['name' => 'client']);
-        $businessRole = Role::create(['name' => 'business']);
-        $adminRole = Role::create(['name' => 'admin']);
+        $clientRole = Role::firstOrCreate(['name' => 'client', 'guard_name' => 'web']);
+        $businessRole = Role::firstOrCreate(['name' => 'business', 'guard_name' => 'web']);
+        $adminRole = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
 
-        // Назначаем права ролям
-        $clientRole->givePermissionTo($clientPermissions);
-        $businessRole->givePermissionTo($businessPermissions);
-        $adminRole->givePermissionTo(Permission::all());
+        $clientRole->syncPermissions($clientPermissions);
+        $businessRole->syncPermissions($businessPermissions);
+        $adminRole->syncPermissions(Permission::where('guard_name', 'web')->get());
     }
 }

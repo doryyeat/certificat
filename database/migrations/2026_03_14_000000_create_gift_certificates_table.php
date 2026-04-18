@@ -5,7 +5,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     /**
      * Run the migrations.
      */
@@ -23,9 +24,6 @@ return new class extends Migration {
             $table->string('recipient_email')->nullable();
             $table->text('notes')->nullable();
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
-            $table->foreignId('business_id')->nullable()->constrained()->onDelete('cascade');
-            $table->foreignId('segment_id')->nullable()->constrained('segments');
-            $table->foreignId('location_id')->nullable()->constrained()->onDelete('set null');
             $table->timestamps();
         });
     }
@@ -38,4 +36,3 @@ return new class extends Migration {
         Schema::dropIfExists('gift_certificates');
     }
 };
-

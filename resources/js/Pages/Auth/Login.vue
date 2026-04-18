@@ -14,6 +14,9 @@ defineProps({
     status: {
         type: String,
     },
+    clientType: {
+        type: String,
+    }
 });
 
 const form = useForm({
@@ -96,5 +99,24 @@ const submit = () => {
                 </PrimaryButton>
             </div>
         </form>
+
+        <p class="mt-6 text-center text-xs text-gray-500"></p>
+
+        <Link
+            v-show="clientType === 'business'"
+            :href="route('business.apply')"
+            class="underline hover:text-gray-700"
+        >
+            Заявка на подключение бизнеса
+        </Link>
+
+        <Link
+            v-show="clientType !== 'business'"
+            :href="route('register')"
+            class="underline hover:text-gray-700"
+        >
+            Зарегистрироваться
+        </Link>
+
     </GuestLayout>
 </template>

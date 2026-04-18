@@ -116,7 +116,7 @@ class CertificateController extends Controller
     public function myCertificates()
     {
         $orders = Order::with(['items', 'giftCertificates'])
-            ->where('customer_id', auth()->id())
+            ->where('user_id', auth()->id())
             ->where('status', Order::STATUS_PAID)
             ->orderBy('created_at', 'desc')
             ->get();
@@ -132,7 +132,7 @@ class CertificateController extends Controller
     public function showPurchased(GiftCertificate $certificate)
     {
         // Проверяем, принадлежит ли сертификат пользователю
-        $order = Order::where('customer_id', auth()->id())
+        $order = Order::where('user_id', auth()->id())
             ->whereHas('giftCertificates', function ($query) use ($certificate) {
                 $query->where('gift_certificate_id', $certificate->id);
             })

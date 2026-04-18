@@ -14,6 +14,12 @@ const props = defineProps({
 
 const form = useForm({
     name: '',
+    form_of_own:'',
+    contact:'',
+    phone:'',
+    address:'',
+    bank_info:'',
+    unp:'',
     email: '',
     password: '',
     password_confirmation: '',
@@ -21,9 +27,15 @@ const form = useForm({
 });
 
 const submit = () => {
-    form.post(route('register'), {
-        onFinish: () => form.reset('password', 'password_confirmation'),
-    });
+    if (props.clientType === 'client') {
+        form.post(route('register'), {
+            onFinish: () => form.reset('password', 'password_confirmation'),
+        });
+    }else {
+        form.post(route('register.request'), {
+            onFinish: (res) => alert(res.message)
+        });
+    }
 };
 </script>
 
@@ -53,6 +65,7 @@ const submit = () => {
             </div>
 
             <form @submit.prevent="submit">
+                <div v-if="props.clientType === 'client'" >
                 <div>
                     <InputLabel for="name" value="Имя" />
                     <TextInput
@@ -105,8 +118,119 @@ const submit = () => {
                     />
                     <InputError class="mt-2" :message="form.errors.password_confirmation" />
                 </div>
+                </div>
+                <div v-else>
+                    <div>
+                        <InputLabel for="name" value="Наименование организации" />
+                        <TextInput
+                            id="name"
+                            type="text"
+                            class="mt-1 block w-full"
+                            v-model="form.name"
+                            required
+                            autofocus
+                            autocomplete="name"
+                        />
+                        <InputError class="mt-2" :message="form.errors.name" />
+                    </div>
+                    <div>
+                        <InputLabel for="form_of_own" value="Форма собственности" />
+                        <TextInput
+                            id="form_of_own"
+                            type="text"
+                            class="mt-1 block w-full"
+                            v-model="form.form_of_own"
+                            placeholder="ООО,ОАО..."
+                            required
+                            autofocus
+                            autocomplete="form_of_own"
+                        />
+                        <InputError class="mt-2" :message="form.errors.form_of_own" />
+                    </div>
+                    <div class="mt-4">
+                        <InputLabel for="email" value="Email" />
+                        <TextInput
+                            id="email"
+                            type="email"
+                            class="mt-1 block w-full"
+                            v-model="form.email"
+                            required
+                            autocomplete="username"
+                        />
+                        <InputError class="mt-2" :message="form.errors.email" />
+                    </div>
+                    <div class="mt-4">
+                        <InputLabel for="contact" value="Контактное лицо" />
+                        <TextInput
+                            id="contact"
+                            type="text"
+                            class="mt-1 block w-full"
+                            v-model="form.contact"
+                            required
+                        />
+                        <InputError class="mt-2" :message="form.errors.contact" />
+                    </div>
+                    <div class="mt-4">
+                        <InputLabel for="phone" value="Телефон" />
+                        <TextInput
+                            id="phone"
+                            type="text"
+                            class="mt-1 block w-full"
+                            v-model="form.phone"
+                            required
+                        />
+                        <InputError class="mt-2" :message="form.errors.phone" />
+                    </div>
+                    <div class="mt-4">
+                        <InputLabel for="address" value="Юридический адрес" />
+                        <TextInput
+                            id="address"
+                            type="text"
+                            class="mt-1 block w-full"
+                            v-model="form.address"
+                            required
+                        />
+                        <InputError class="mt-2" :message="form.errors.address" />
+                    </div>
+                    <div class="mt-4">
+                        <InputLabel for="bank_info" value="Банковские реквизиты" />
+                        <TextInput
+                            id="bank_info"
+                            type="text"
+                            class="mt-1 block w-full"
+                            v-model="form.bank_info"
+                            placeholder="Наименование банка, БИК, расчетный счет"
+                            required
+                        />
+                        <InputError class="mt-2" :message="form.errors.bank_info" />
+                    </div>
+                    <div class="mt-4">
+                        <InputLabel for="unp" value="УНП" />
+                        <TextInput
+                            id="unp"
+                            type="text"
+                            class="mt-1 block w-full"
+                            v-model="form.unp"
+                            required
+                        />
+                        <InputError class="mt-2" :message="form.errors.unp" />
+                    </div>
+                    <div class="mt-4">
+                        <InputLabel for="password" value="Пароль" />
+                        <TextInput
+                            id="password"
+                            type="password"
+                            class="mt-1 block w-full"
+                            v-model="form.password"
+                            required
+                            autocomplete="new-password"
+                        />
+                        <InputError class="mt-2" :message="form.errors.password" />
+                    </div>
 
+                </div>
                 <input type="hidden" v-model="form.client_type" />
+
 
                 <div class="flex items-center justify-end mt-4">
                     <Link
@@ -116,8 +240,11 @@ const submit = () => {
                         Уже зарегистрированы?
                     </Link>
 
-                    <PrimaryButton class="ms-4" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
+                    <PrimaryButton v-if="props.clientType !== 'business'" class="ms-4" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
                         Зарегистрироваться
+                    </PrimaryButton>
+                    <PrimaryButton v-else class="ms-4" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
+                        Подать заявку
                     </PrimaryButton>
                 </div>
             </form>

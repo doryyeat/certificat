@@ -12,11 +12,12 @@ class OrderItem extends Model
 
     protected $fillable = [
         'order_id',
-        'gift_certificate_id',
+        'product_id',
         'name',
         'price',
         'quantity',
         'total',
+        'gift_certificate_id'
     ];
 
     protected $casts = [
@@ -34,4 +35,3 @@ class OrderItem extends Model
         return $this->belongsTo(Product::class);
     }
 }
-

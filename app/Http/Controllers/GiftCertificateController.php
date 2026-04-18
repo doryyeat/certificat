@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CertificateTemplate;
 use App\Models\GiftCertificate;
 use App\Models\GiftCertificateTransaction;
-use App\Models\CertificateTemplate;
+use App\Models\Store;
+use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -17,71 +19,106 @@ class GiftCertificateController extends Controller
     {
         $search = $request->string('search')->toString();
         $status = $request->string('status')->toString();
+        $category = $request->string('category')->toString();
 
-        $organizationId = $request->user()?->organization_id;
+        $organizationId = $request->user()->organization_id;
 
         $query = GiftCertificate::query()
-            ->when($organizationId, fn($q) => $q->where('organization_id', $organizationId))
+            ->with('store')
+            ->when($organizationId, fn ($q) => $q->where('organization_id', $organizationId))
             ->when($search, function ($q) use ($search) {
-                $q->where('code', 'like', '%' . $search . '%')
-                    ->orWhere('recipient_name', 'like', '%' . $search . '%')
-                    ->orWhere('recipient_email', 'like', '%' . $search . '%');
+                $q->where(function ($q2) use ($search) {
+                    $q2->where('code', 'like', '%'.$search.'%')
+                        ->orWhere('title', 'like', '%'.$search.'%')
+                        ->orWhere('terms_of_use', 'like', '%'.$search.'%')
+                        ->orWhere('recipient_name', 'like', '%'.$search.'%')
+                        ->orWhere('recipient_email', 'like', '%'.$search.'%');
+                });
             })
-            ->when($status, function ($q) use ($status) {
-                $q->where('status', $status);
-            })
+            ->when($status, fn ($q) => $q->where('status', $status))
+            ->when($category, fn ($q) => $q->where('category', $category))
             ->orderByDesc('created_at');
 
         return Inertia::render('GiftCertificates/Index', [
             'filters' => [
                 'search' => $search,
                 'status' => $status,
+                'category' => $category,
             ],
-            'certificates' => $query->paginate(10)->withQueryString(),
+            'certificates' => $query->paginate(12)->withQueryString(),
         ]);
     }
 
-    public function create(): Response
+    public function create(Request $request): Response
     {
+        $organizationId = $request->user()->organization_id;
+
         $templates = CertificateTemplate::query()
-            ->when(auth()->user()?->organization_id, fn($q) => $q->where('organization_id', auth()->user()->organization_id))
+            ->when($organizationId, fn ($q) => $q->where('organization_id', $organizationId))
+            ->orderBy('name')
+            ->get();
+
+        $stores = Store::query()
+            ->where('organization_id', $organizationId)
             ->orderBy('name')
             ->get();
 
         return Inertia::render('GiftCertificates/Create', [
             'templates' => $templates,
+            'stores' => $stores,
+            'requiresStore' => $stores->isEmpty(),
         ]);
     }
 
     public function store(Request $request): RedirectResponse
     {
+        $organizationId = $request->user()->organization_id;
+
         $data = $request->validate([
-            'template_id' => ['nullable', 'exists:certificate_templates,id'],
-            'amount' => ['required', 'numeric', 'min:0.01'],
+            'template_id' => [
+                'nullable',
+                Rule::exists('certificate_templates', 'id')->where(
+                    fn ($q) => $q->where('organization_id', $organizationId),
+                ),
+            ],
+            'title' => ['nullable', 'string', 'max:200'],
+            'amount' => ['required', 'numeric', 'min:0.01', 'max:1000'],
             'currency' => ['required', 'string', 'size:3'],
-            'expires_at' => ['nullable', 'date'],
+            'validity_days' => ['required', 'integer', 'min:1', 'max:1095'],
+            'category' => ['required', 'string', 'in:horeca,retail,services'],
+            'terms_of_use' => ['nullable', 'string', 'max:1000'],
+            'store_id' => ['required', 'exists:stores,id'],
             'recipient_name' => ['nullable', 'string', 'max:255'],
             'recipient_email' => ['nullable', 'email', 'max:255'],
             'notes' => ['nullable', 'string'],
         ]);
 
-        $code = Str::upper(Str::random(12));
+        $store = Store::where('id', $data['store_id'])
+            ->where('organization_id', $organizationId)
+            ->firstOrFail();
 
-        $organizationId = $request->user()?->organization_id;
+        $expiresAt = Carbon::now()->addDays($data['validity_days']);
+
+        $code = $this->generateUniqueCertificateCode();
 
         $certificate = GiftCertificate::create([
             'organization_id' => $organizationId,
+            'store_id' => $store->id,
             'template_id' => $data['template_id'] ?? null,
             'code' => $code,
+            'title' => $data['title'] ?: 'Подарочный сертификат',
             'amount' => $data['amount'],
             'balance' => $data['amount'],
-            'currency' => $data['currency'],
+            'currency' => strtoupper($data['currency']),
+            'category' => $data['category'],
+            'validity_days' => $data['validity_days'],
+            'terms_of_use' => $data['terms_of_use'] ?? null,
             'status' => GiftCertificate::STATUS_ACTIVE,
-            'expires_at' => $data['expires_at'] ?? null,
+            'expires_at' => $expiresAt,
             'recipient_name' => $data['recipient_name'] ?? null,
             'recipient_email' => $data['recipient_email'] ?? null,
             'notes' => $data['notes'] ?? null,
-            'created_by' => $request->user()?->id,
+            'created_by' => $request->user()->id,
         ]);
 
         GiftCertificateTransaction::create([
@@ -96,30 +133,49 @@ class GiftCertificateController extends Controller
             ->with('success', 'Подарочный сертификат создан.');
     }
 
-    public function show(GiftCertificate $certificate): Response
+    public function show(Request $request, GiftCertificate $certificate): Response
     {
-        $certificate->load('transactions');
+        $this->authorizeOrganization($request, $certificate);
+        $certificate->load(['transactions', 'store']);
 
         return Inertia::render('GiftCertificates/Show', [
             'certificate' => $certificate,
         ]);
     }
 
-    public function edit(GiftCertificate $certificate): Response
+    public function edit(Request $request, GiftCertificate $certificate): Response
     {
-        $certificate->load('transactions');
+        $this->authorizeOrganization($request, $certificate);
+        $organizationId = $request->user()->organization_id;
+
+        $certificate->load(['transactions', 'store']);
+
+        $stores = Store::query()
+            ->where('organization_id', $organizationId)
+            ->orderBy('name')
+            ->get();
 
         return Inertia::render('GiftCertificates/Edit', [
             'certificate' => $certificate,
+            'stores' => $stores,
         ]);
     }
 
     public function update(Request $request, GiftCertificate $certificate): RedirectResponse
     {
+        $this->authorizeOrganization($request, $certificate);
+
+        $organizationId = $request->user()->organization_id;
+
         $data = $request->validate([
-            'amount' => ['required', 'numeric', 'min:0.01'],
+            'title' => ['nullable', 'string', 'max:200'],
+            'amount' => ['required', 'numeric', 'min:0.01', 'max:1000'],
             'balance' => ['required', 'numeric', 'min:0'],
             'currency' => ['required', 'string', 'size:3'],
+            'validity_days' => ['nullable', 'integer', 'min:1', 'max:1095'],
+            'category' => ['required', 'string', 'in:horeca,retail,services'],
+            'terms_of_use' => ['nullable', 'string', 'max:1000'],
+            'store_id' => ['required', 'exists:stores,id'],
             'expires_at' => ['nullable', 'date'],
             'recipient_name' => ['nullable', 'string', 'max:255'],
             'recipient_email' => ['nullable', 'email', 'max:255'],
@@ -127,15 +183,34 @@ class GiftCertificateController extends Controller
             'notes' => ['nullable', 'string'],
         ]);
 
-        $certificate->update($data);
+        Store::where('id', $data['store_id'])
+            ->where('organization_id', $organizationId)
+            ->firstOrFail();
+
+        $certificate->update([
+            'title' => $data['title'] ?: $certificate->title,
+            'amount' => $data['amount'],
+            'balance' => $data['balance'],
+            'currency' => strtoupper($data['currency']),
+            'validity_days' => $data['validity_days'] ?? $certificate->validity_days,
+            'category' => $data['category'],
+            'terms_of_use' => $data['terms_of_use'] ?? null,
+            'store_id' => $data['store_id'],
+            'expires_at' => $data['expires_at'] ?? $certificate->expires_at,
+            'recipient_name' => $data['recipient_name'] ?? null,
+            'recipient_email' => $data['recipient_email'] ?? null,
+            'status' => $data['status'],
+            'notes' => $data['notes'] ?? null,
+        ]);
 
         return redirect()
             ->route('certificates.edit', $certificate)
             ->with('success', 'Сертификат обновлён.');
     }
 
-    public function destroy(GiftCertificate $certificate): RedirectResponse
+    public function destroy(Request $request, GiftCertificate $certificate): RedirectResponse
     {
+        $this->authorizeOrganization($request, $certificate);
         $certificate->delete();
 
         return redirect()
@@ -145,6 +220,8 @@ class GiftCertificateController extends Controller
 
     public function redeem(Request $request, GiftCertificate $certificate): RedirectResponse
     {
+        $this->authorizeOrganization($request, $certificate);
+
         $data = $request->validate([
             'amount' => ['required', 'numeric', 'min:0.01'],
             'description' => ['nullable', 'string', 'max:255'],
@@ -188,5 +265,27 @@ class GiftCertificateController extends Controller
 
         return back()->with('success', 'Сертификат успешно погашен.');
     }
-}
 
+    private function authorizeOrganization(Request $request, GiftCertificate $certificate): void
+    {
+        $oid = $request->user()->organization_id;
+        if (! $oid || (int) $certificate->organization_id !== (int) $oid) {
+            abort(403);
+        }
+    }
+
+    private function generateUniqueCertificateCode(): string
+    {
+        $alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+
+        do {
+            $raw = '';
+            for ($i = 0; $i < 16; $i++) {
+                $raw .= $alphabet[random_int(0, strlen($alphabet) - 1)];
+            }
+            $code = substr($raw, 0, 4).'-'.substr($raw, 4, 4).'-'.substr($raw, 8, 4).'-'.substr($raw, 12, 4);
+        } while (GiftCertificate::where('code', $code)->exists());
+
+        return $code;
+    }
+}

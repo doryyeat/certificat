@@ -33,7 +33,15 @@ class HandleInertiaRequests extends Middleware
             ...parent::share($request),
             'auth' => [
                 'user' => $request->user(),
+                'isAdmin' => $request->user()?->hasRole('admin') ?? false,
+                'isBusiness' => $request->user()?->hasRole('business') ?? false,
+                'isClient' => $request->user()?->hasRole('client') ?? false,
             ],
+            'flash' => [
+                'message' => $request->session()->get('message'),
+                'success' => $request->session()->get('success'),
+            ],
+            'clientType' => fn () => $request->cookie('client_type'),
         ];
     }
 }

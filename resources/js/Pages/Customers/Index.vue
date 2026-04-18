@@ -14,7 +14,7 @@ watch(
     search,
     () => {
         router.get(
-            route('business.customers.index'),
+            route('customers.index'),
             { search: search.value },
             { preserveState: true, replace: true },
         );
@@ -32,7 +32,7 @@ watch(
                     Клиенты
                 </h2>
                 <Link
-                    :href="route('business.customers.create')"
+                    :href="route('customers.create')"
                     class="inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                 >
                     Новый клиент
@@ -88,7 +88,7 @@ watch(
                                 </td>
                                 <td class="whitespace-nowrap px-4 py-3 text-right text-sm sm:px-6">
                                     <Link
-                                        :href="route('business.customers.edit', customer.id)"
+                                        :href="route('customers.edit', customer.id)"
                                         class="text-indigo-600 hover:text-indigo-900"
                                     >
                                         Открыть

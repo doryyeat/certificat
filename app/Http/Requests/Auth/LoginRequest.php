@@ -50,6 +50,15 @@ class LoginRequest extends FormRequest
             ]);
         }
 
+        $user = Auth::user();
+        if ($user && $user->is_blocked) {
+            Auth::logout();
+
+            throw ValidationException::withMessages([
+                'email' => 'Учётная запись заблокирована администратором платформы.',
+            ]);
+        }
+
         RateLimiter::clear($this->throttleKey());
     }
 

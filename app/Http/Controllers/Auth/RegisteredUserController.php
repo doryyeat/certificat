@@ -69,7 +69,7 @@ class RegisteredUserController extends Controller
 
         // Редиректим в зависимости от типа
         if ($request->client_type === 'business') {
-            return redirect()->route('business.dashboard');
+            return redirect()->route('dashboard');
         }
 
         return redirect()->route('client.certificates.index');
