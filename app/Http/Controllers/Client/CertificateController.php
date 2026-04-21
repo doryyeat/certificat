@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\GiftCertificate;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\PurchasedCertificate;
 use App\Services\Payment\PaymentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -47,6 +48,7 @@ class CertificateController extends Controller
             ->with(['organization', 'template', 'store'])
             ->where('status', GiftCertificate::STATUS_ACTIVE)
             ->where('balance', '>', 0)
+            ->whereNull('source_certificate_id')
             ->whereNull('sold_at')
             ->when($request->search, function ($query, $search) {
                 $query->whereHas('organization', function ($q) use ($search) {
@@ -78,7 +80,6 @@ class CertificateController extends Controller
                     ->orderByDesc('gift_certificates.created_at');
             })
             ->when($sort === 'default', function ($q) {
-                // Приоритет по тарифу: Pro → Start → Free, затем по новизне
                 $q->join('organizations', 'organizations.id', '=', 'gift_certificates.organization_id')
                     ->select('gift_certificates.*')
                     ->orderByRaw("CASE LOWER(COALESCE(organizations.plan_name, 'free')) WHEN 'pro' THEN 1 WHEN 'start' THEN 2 ELSE 3 END ASC")
@@ -103,7 +104,7 @@ class CertificateController extends Controller
      */
     public function show(GiftCertificate $certificate)
     {
-        if ($certificate->status !== GiftCertificate::STATUS_ACTIVE || $certificate->sold_at) {
+        if ($certificate->status !== GiftCertificate::STATUS_ACTIVE || $certificate->sold_at || $certificate->source_certificate_id !== null) {
             return redirect()->route('client.certificates.index')
                 ->with('error', 'Сертификат недоступен для покупки');
         }
@@ -135,7 +136,9 @@ class CertificateController extends Controller
             'recipient_name' => 'required|string|max:100',
             'message' => 'nullable|string|max:500',
         ]);
+
         try {
+            DB::beginTransaction();
 
             // Создаем заказ
             $order = Order::create([
@@ -148,17 +151,18 @@ class CertificateController extends Controller
                 'recipient_name' => $request->recipient_name,
                 'message' => $request->message,
             ]);
-            // Добавляем товар в заказ
 
-            $orderItem = OrderItem::create([
+            // Добавляем товар в заказ
+            OrderItem::create([
                 'order_id' => $order->id,
                 'gift_certificate_id' => $certificate->id,
-                'name' => 'Подарочный сертификат',
+                'name' => $certificate->title,
                 'price' => $certificate->amount,
                 'quantity' => 1,
                 'total' => $certificate->amount,
             ]);
 
+            DB::commit();
 
             // Передаем данные в страницу оплаты
             return Inertia::render('Payment/PaymentProcess', [
@@ -170,6 +174,7 @@ class CertificateController extends Controller
                 'message' => $request->message,
             ]);
         } catch (\Exception $e) {
+            DB::rollBack();
             return back()->with('error', 'Ошибка при создании заказа: ' . $e->getMessage());
         }
     }
@@ -179,36 +184,33 @@ class CertificateController extends Controller
      */
     public function myCertificates()
     {
-        $orders = Order::with(['items', 'giftCertificates'])
-            ->where('customer_id', auth()->id())
-            ->where('status', Order::STATUS_PAID)
+        // Получаем все purchased сертификаты, которые принадлежат пользователю
+        $certificates = PurchasedCertificate::with(['store', 'transactions', 'order'])
+            ->where('recipient_email', auth()->user()->email)
+            ->orWhere('created_by', auth()->id())
             ->orderBy('created_at', 'desc')
             ->get();
 
         return Inertia::render('Client/Certificates/MyCertificates', [
-            'orders' => $orders,
+            'certificates' => $certificates,
         ]);
     }
 
     /**
      * Показать конкретный купленный сертификат
      */
-    public function showPurchased(GiftCertificate $certificate)
+    public function showPurchased(PurchasedCertificate $certificate)
     {
         // Проверяем, принадлежит ли сертификат пользователю
-        $order = Order::where('customer_id', auth()->id())
-            ->whereHas('giftCertificates', function ($query) use ($certificate) {
-                $query->where('gift_certificate_id', $certificate->id);
-            })
-            ->first();
-
-        if (!$order) {
+        if ($certificate->recipient_email !== auth()->user()->email &&
+            $certificate->created_by !== auth()->id()) {
             abort(403);
         }
 
+        $certificate->load(['store', 'transactions', 'order', 'sourceCertificate']);
+
         return Inertia::render('Client/Certificates/ShowPurchased', [
-            'certificate' => $certificate->load(['organization', 'transactions']),
-            'order' => $order,
+            'certificate' => $certificate,
         ]);
     }
 }

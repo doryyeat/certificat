@@ -28,7 +28,7 @@ const submitPayment = () => {
     form.post(route('client.payment.process', { order: props.order.id }), {
         preserveScroll: true,
         onSuccess: () => {
-            router.visit(route('payment.success'));
+            router.visit(route('client.payment.success'));
         },
         onError: (errors) => {
             errorMessage.value = errors.message || 'Ошибка при оплате';

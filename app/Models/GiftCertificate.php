@@ -37,6 +37,7 @@ class GiftCertificate extends Model
         'organization_id',
         'store_id',
         'template_id',
+        'source_certificate_id',
         'code',
         'title',
         'amount',
@@ -93,6 +94,11 @@ class GiftCertificate extends Model
     public function template(): BelongsTo
     {
         return $this->belongsTo(CertificateTemplate::class, 'template_id');
+    }
+
+    public function sourceCertificate(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'source_certificate_id');
     }
 }
 

@@ -3,6 +3,7 @@
 namespace App\Services\Notification;
 
 use App\Models\GiftCertificate;
+use App\Models\PurchasedCertificate;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 use Illuminate\Support\Facades\Log;
@@ -11,8 +12,20 @@ use Illuminate\Support\Facades\View;
 
 class PDFGenerator
 {
-    public function generateGiftCertificatePdf(GiftCertificate $certificate, string $qrPngBase64): string
+    /**
+     * Generate PDF for a gift certificate
+     *
+     * @param GiftCertificate|PurchasedCertificate $certificate
+     */
+    public function generateGiftCertificatePdf($certificate, string $qrPngBase64): string
     {
+        // Загружаем необходимые связи
+        if ($certificate instanceof PurchasedCertificate) {
+            $certificate->loadMissing(['organization', 'store']);
+        } else {
+            $certificate->loadMissing(['organization', 'store']);
+        }
+
         $org = $certificate->organization;
 
         $branding = [
@@ -43,7 +56,6 @@ class PDFGenerator
                 }
             }
         } catch (\Throwable $e) {
-            // По ТЗ: при ошибках брендирования отправляем стандартный Free-PDF, факт фиксируем в журнале
             Log::warning('Branding apply failed, falling back to free', [
                 'certificate_id' => $certificate->id,
                 'org_id' => $org?->id,

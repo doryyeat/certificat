@@ -111,7 +111,7 @@ const statusColor = (s) => {
                         <input
                             v-model="search"
                             type="text"
-                            placeholder="Название, условия, код…"
+                            placeholder="Название, условия…"
                             class="mt-1 block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                         >
                     </div>
@@ -286,9 +286,6 @@ const statusColor = (s) => {
                                 {{ certificate.validity_days }} дн.
                             </span>
                         </div>
-                        <p class="mb-1 font-mono text-xs text-gray-600">
-                            {{ certificate.code }}
-                        </p>
                         <p
                             v-if="certificate.store"
                             class="mb-4 line-clamp-2 text-xs text-gray-500"

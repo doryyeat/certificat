@@ -31,6 +31,7 @@ class Purchase extends Model
         'paid_at' => 'datetime',
     ];
 
+    protected $guarded = [];
     // Relationships
     public function user()
     {

@@ -20,7 +20,7 @@ const submit = () => {
 </script>
 
 <template>
-    <Head :title="'Сертификат ' + certificate.code" />
+    <Head :title="'Сертификат ' + (certificate.template?.name || '')" />
 
     <Layout>
         <div class="py-12">
@@ -51,10 +51,6 @@ const submit = () => {
                                 </h1>
 
                                 <div class="grid grid-cols-2 gap-6 mb-8">
-                                    <div>
-                                        <div class="text-sm text-gray-500 mb-1">Код сертификата</div>
-                                        <div class="text-xl font-mono">{{ certificate.code }}</div>
-                                    </div>
                                     <div>
                                         <div class="text-sm text-gray-500 mb-1">Номинал</div>
                                         <div class="text-3xl font-bold text-purple-600">{{ certificate.amount }} {{ certificate.currency || 'BYN' }}</div>

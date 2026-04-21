@@ -3,9 +3,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { computed } from 'vue';
 
-const props = defineProps({
-    certificate: Object,
-});
+const props = defineProps({ certificate: Object });
 
 const categoryLabel = computed(() => ({
     horeca: 'HoReCa',
@@ -21,21 +19,16 @@ const statusLabel = computed(() => ({
     cancelled: 'Отменён',
 }[props.certificate.status] || props.certificate.status));
 
-/** QR для гашения: кодируем уникальный код сертификата (сканер в ПО точки). */
-const qrImageUrl = computed(() => {
-    const data = encodeURIComponent(props.certificate.code);
-    return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${data}`;
-});
 </script>
 
 <template>
-    <Head :title="`Сертификат ${certificate.code}`" />
+    <Head :title="`Сертификат ${certificate.title || ''}`" />
 
     <AuthenticatedLayout>
         <template #header>
             <div class="flex items-center justify-between">
                 <h2 class="text-xl font-semibold leading-tight text-gray-800">
-                    {{ certificate.title || 'Сертификат' }} · {{ certificate.code }}
+                    {{ certificate.title || 'Сертификат' }}
                 </h2>
                 <div class="flex gap-3">
                     <Link
@@ -147,20 +140,10 @@ const qrImageUrl = computed(() => {
                     </div>
 
                     <div class="overflow-hidden rounded-lg bg-white p-6 shadow">
-                        <h3 class="mb-4 text-lg font-medium text-gray-900">
-                            QR для гашения
-                        </h3>
-                        <p class="mb-4 text-xs text-gray-500">
-                            Продавец сканирует код в интерфейсе GiftHub; в QR закодирован номер сертификата.
+                        <h3 class="mb-4 text-lg font-medium text-gray-900">Примечание</h3>
+                        <p class="text-sm text-gray-600">
+                            Это шаблон сертификата для каталога. Уникальный код формируется только после покупки клиентом.
                         </p>
-                        <div class="flex justify-center rounded-lg border border-gray-100 bg-gray-50 p-4">
-                            <img
-                                :src="qrImageUrl"
-                                alt="QR-код сертификата"
-                                class="h-48 w-48 object-contain"
-                                loading="lazy"
-                            >
-                        </div>
                     </div>
                 </div>
 

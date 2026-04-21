@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\CertificateTemplate;
 use App\Models\GiftCertificate;
 use App\Models\GiftCertificateTransaction;
+use App\Models\PurchasedCertificate;
 use App\Models\Store;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
@@ -12,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
+use Illuminate\Support\Str;
 
 class GiftCertificateController extends Controller
 {
@@ -41,13 +43,12 @@ class GiftCertificateController extends Controller
         $query = GiftCertificate::query()
             ->with('store')
             ->when($organizationId, fn ($q) => $q->where('organization_id', $organizationId))
+            ->whereNull('source_certificate_id') // Только шаблоны
+            ->whereNull('sold_at') // Только не проданные
             ->when($search, function ($q) use ($search) {
                 $q->where(function ($q2) use ($search) {
-                    $q2->where('code', 'like', '%'.$search.'%')
-                        ->orWhere('title', 'like', '%'.$search.'%')
-                        ->orWhere('terms_of_use', 'like', '%'.$search.'%')
-                        ->orWhere('recipient_name', 'like', '%'.$search.'%')
-                        ->orWhere('recipient_email', 'like', '%'.$search.'%');
+                    $q2->where('title', 'like', '%'.$search.'%')
+                        ->orWhere('terms_of_use', 'like', '%'.$search.'%');
                 });
             })
             ->when($status, fn ($q) => $q->where('status', $status))
@@ -122,13 +123,14 @@ class GiftCertificateController extends Controller
 
         $expiresAt = Carbon::now()->addDays($data['validity_days']);
 
-        $code = $this->generateUniqueCertificateCode();
+        // Генерируем уникальный код для шаблона
+        $code = $this->generateUniqueTemplateCode();
 
         $certificate = GiftCertificate::create([
             'organization_id' => $organizationId,
             'store_id' => $store->id,
             'template_id' => $data['template_id'] ?? null,
-            'code' => $code,
+            'code' => $code, // Теперь код генерируется!
             'title' => $data['title'] ?: 'Подарочный сертификат',
             'amount' => $data['amount'],
             'balance' => $data['amount'],
@@ -157,6 +159,12 @@ class GiftCertificateController extends Controller
     public function show(Request $request, GiftCertificate $certificate): Response
     {
         $this->authorizeOrganization($request, $certificate);
+
+        // Проверяем, что это шаблон, а не purchased
+        if ($certificate->source_certificate_id !== null || $certificate->sold_at !== null) {
+            abort(404, 'Сертификат не найден');
+        }
+
         $certificate->load(['transactions', 'store']);
 
         return Inertia::render('GiftCertificates/Show', [
@@ -167,6 +175,12 @@ class GiftCertificateController extends Controller
     public function edit(Request $request, GiftCertificate $certificate): Response
     {
         $this->authorizeOrganization($request, $certificate);
+
+        // Проверяем, что это шаблон
+        if ($certificate->source_certificate_id !== null || $certificate->sold_at !== null) {
+            abort(404, 'Сертификат не найден');
+        }
+
         $organizationId = $request->user()->organization_id;
 
         $certificate->load(['transactions', 'store']);
@@ -185,6 +199,11 @@ class GiftCertificateController extends Controller
     public function update(Request $request, GiftCertificate $certificate): RedirectResponse
     {
         $this->authorizeOrganization($request, $certificate);
+
+        // Проверяем, что это шаблон
+        if ($certificate->source_certificate_id !== null || $certificate->sold_at !== null) {
+            abort(404, 'Сертификат не найден');
+        }
 
         $organizationId = $request->user()->organization_id;
 
@@ -228,6 +247,12 @@ class GiftCertificateController extends Controller
     public function destroy(Request $request, GiftCertificate $certificate): RedirectResponse
     {
         $this->authorizeOrganization($request, $certificate);
+
+        // Проверяем, что это шаблон и он не был продан
+        if ($certificate->source_certificate_id !== null || $certificate->sold_at !== null) {
+            abort(404, 'Сертификат не найден');
+        }
+
         $certificate->delete();
 
         return redirect()
@@ -235,52 +260,37 @@ class GiftCertificateController extends Controller
             ->with('success', 'Сертификат удалён.');
     }
 
-    public function redeem(Request $request, GiftCertificate $certificate): RedirectResponse
+    /**
+     * Погашение purchased сертификата (для бизнеса)
+     */
+    public function redeemPurchased(Request $request, PurchasedCertificate $certificate): RedirectResponse
     {
-        $this->authorizeOrganization($request, $certificate);
+        $this->authorizeOrganizationForPurchased($request, $certificate);
 
         $data = $request->validate([
             'amount' => ['required', 'numeric', 'min:0.01'],
             'description' => ['nullable', 'string', 'max:255'],
         ]);
 
-        if ($certificate->status !== GiftCertificate::STATUS_ACTIVE) {
-            return back()->withErrors([
-                'amount' => 'Нельзя погасить сертификат в текущем статусе.',
-            ]);
+        try {
+            $certificate->redeem($data['amount'], $data['description'] ?? null);
+
+            // Отправляем письмо клиенту о списании
+            $this->sendRedemptionEmail($certificate, $data['amount']);
+
+            return back()->with('success', 'Сертификат успешно погашен. Остаток: ' . $certificate->balance . ' BYN');
+        } catch (\RuntimeException $e) {
+            return back()->withErrors(['amount' => $e->getMessage()]);
         }
+    }
 
-        if ($certificate->expires_at && $certificate->expires_at->isPast()) {
-            $certificate->status = GiftCertificate::STATUS_EXPIRED;
-            $certificate->save();
+    private function generateUniqueTemplateCode(): string
+    {
+        do {
+            $code = 'TPL-' . strtoupper(Str::random(4)) . '-' . strtoupper(Str::random(4));
+        } while (GiftCertificate::where('code', $code)->exists());
 
-            return back()->withErrors([
-                'amount' => 'Срок действия сертификата истёк.',
-            ]);
-        }
-
-        if ($data['amount'] > $certificate->balance) {
-            return back()->withErrors([
-                'amount' => 'Сумма превышает доступный баланс.',
-            ]);
-        }
-
-        $certificate->balance -= $data['amount'];
-
-        if ($certificate->balance <= 0) {
-            $certificate->status = GiftCertificate::STATUS_REDEEMED;
-        }
-
-        $certificate->save();
-
-        GiftCertificateTransaction::create([
-            'gift_certificate_id' => $certificate->id,
-            'type' => GiftCertificateTransaction::TYPE_REDEEM,
-            'amount' => $data['amount'],
-            'description' => $data['description'] ?? 'Redeem',
-        ]);
-
-        return back()->with('success', 'Сертификат успешно погашен.');
+        return $code;
     }
 
     private function authorizeOrganization(Request $request, GiftCertificate $certificate): void
@@ -291,18 +301,25 @@ class GiftCertificateController extends Controller
         }
     }
 
-    private function generateUniqueCertificateCode(): string
+    private function authorizeOrganizationForPurchased(Request $request, PurchasedCertificate $certificate): void
     {
-        $alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+        $oid = $request->user()->organization_id;
+        if (! $oid || (int) $certificate->organization_id !== (int) $oid) {
+            abort(403);
+        }
+    }
 
-        do {
-            $raw = '';
-            for ($i = 0; $i < 16; $i++) {
-                $raw .= $alphabet[random_int(0, strlen($alphabet) - 1)];
-            }
-            $code = substr($raw, 0, 4).'-'.substr($raw, 4, 4).'-'.substr($raw, 8, 4).'-'.substr($raw, 12, 4);
-        } while (GiftCertificate::where('code', $code)->exists());
-
-        return $code;
+    private function sendRedemptionEmail(PurchasedCertificate $certificate, float $redeemedAmount): void
+    {
+        try {
+            Mail::to($certificate->recipient_email, $certificate->recipient_name)->send(
+                new \App\Mail\CertificateRedemptionMail($certificate, $redeemedAmount)
+            );
+        } catch (\Exception $e) {
+            \Log::error('Failed to send redemption email', [
+                'certificate_id' => $certificate->id,
+                'error' => $e->getMessage()
+            ]);
+        }
     }
 }

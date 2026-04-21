@@ -3,12 +3,15 @@
 namespace App\Http\Controllers\Manager;
 
 use App\Http\Controllers\Controller;
+use App\Mail\CertificateRedeemedMail;
 use App\Models\GiftCertificate;
 use App\Models\GiftCertificateRedemption;
 use App\Models\GiftCertificateTransaction;
+use App\Models\PurchasedCertificate;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -24,7 +27,7 @@ class RedeemController extends Controller
         $orgId = $request->user()->organization_id;
         $normalizedCode = strtoupper(trim($code));
 
-        $certificate = GiftCertificate::query()
+        $certificate = PurchasedCertificate::query()
             ->where('organization_id', $orgId)
             ->where('code', $normalizedCode)
             ->with(['organization', 'store', 'transactions'])
@@ -35,7 +38,7 @@ class RedeemController extends Controller
         ]);
     }
 
-    public function redeem(Request $request, GiftCertificate $certificate): RedirectResponse
+    public function redeem(Request $request, PurchasedCertificate $certificate): RedirectResponse
     {
         $orgId = $request->user()->organization_id;
         if ((int) $certificate->organization_id !== (int) $orgId) {
@@ -46,8 +49,8 @@ class RedeemController extends Controller
             'amount' => ['required', 'numeric', 'min:0.01'],
         ]);
 
-        DB::transaction(function () use ($certificate, $data, $request, $orgId) {
-            $cert = GiftCertificate::query()->lockForUpdate()->findOrFail($certificate->id);
+        $payload = DB::transaction(function () use ($certificate, $data, $request, $orgId) {
+            $cert = PurchasedCertificate::query()->lockForUpdate()->findOrFail($certificate->id);
 
             if ($cert->status !== GiftCertificate::STATUS_ACTIVE) {
                 abort(422, 'Сертификат недоступен для гашения.');
@@ -94,7 +97,28 @@ class RedeemController extends Controller
                 'amount' => $data['amount'],
                 'description' => 'Manager redeem',
             ]);
+
+            return [
+                'recipient_email' => $cert->recipient_email,
+                'recipient_name' => $cert->recipient_name ?: 'Клиент',
+                'certificate_code' => $cert->code,
+                'amount_redeemed' => (float) $data['amount'],
+                'balance_left' => (float) $cert->balance,
+                'currency' => $cert->currency,
+                'organization_name' => $cert->organization?->name,
+            ];
         });
+
+        if (!empty($payload['recipient_email'])) {
+            Mail::to($payload['recipient_email'])->send(new CertificateRedeemedMail(
+                recipientName: $payload['recipient_name'],
+                certificateCode: $payload['certificate_code'],
+                amountRedeemed: $payload['amount_redeemed'],
+                balanceLeft: $payload['balance_left'],
+                currency: $payload['currency'],
+                organizationName: $payload['organization_name'] ?? 'GiftHub',
+            ));
+        }
 
         return back()->with('success', 'Списание выполнено.');
     }

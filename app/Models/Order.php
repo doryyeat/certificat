@@ -22,7 +22,7 @@ class Order extends Model
 
     protected $fillable = [
         'organization_id',
-        'user_id',
+        'customer_id',
         'number',
         'status',
         'total_amount',
@@ -35,7 +35,7 @@ class Order extends Model
         'recipient_email',   // добавьте
         'message',
     ];
-
+    protected $guarded = [];
     protected $casts = [
         'total_amount' => 'decimal:2',
         'total_products' => 'decimal:2',

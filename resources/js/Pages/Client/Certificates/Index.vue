@@ -150,7 +150,7 @@ const resetFilters = () => {
                             <div class="flex justify-between items-start mb-4">
                                 <div>
                                     <h3 class="text-xl font-bold text-gray-900">{{ certificate.template?.name || 'Подарочный сертификат' }}</h3>
-                                    <p class="text-sm text-gray-500 mt-1">Код: {{ certificate.code }}</p>
+                                    <p class="text-sm text-gray-500 mt-1">{{ certificate.organization.name }}</p>
                                 </div>
                                 <div class="text-2xl font-bold text-purple-600">
                                     {{ certificate.amount }} {{ certificate.currency || 'BYN' }}

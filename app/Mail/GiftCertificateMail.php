@@ -3,6 +3,7 @@
 namespace App\Mail;
 
 use App\Models\GiftCertificate;
+use App\Models\PurchasedCertificate;
 use App\Services\Notification\PDFGenerator;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -17,7 +18,7 @@ class GiftCertificateMail extends Mailable
     use Queueable, SerializesModels;
 
     /**
-     * @param  GiftCertificate[]  $certificates
+     * @param  array<GiftCertificate|PurchasedCertificate>  $certificates
      */
     public function __construct(
         public array $certificates,
@@ -53,10 +54,11 @@ class GiftCertificateMail extends Mailable
 
         $attachments = [];
         foreach ($this->certificates as $certificate) {
-            // QR ведет на страницу менеджера: скан -> сразу открытие сертификата по коду
+            // QR ведет на страницу менеджера
             $qrPayload = route('manager.redeem.show', ['code' => $certificate->code], true);
             $qrPng = QrCode::format('png')->size(240)->margin(1)->generate($qrPayload);
-            $pdfBytes = $pdf->generateGiftCertificatePdf($certificate->loadMissing(['organization', 'store']), base64_encode($qrPng));
+
+            $pdfBytes = $pdf->generateGiftCertificatePdf($certificate, base64_encode($qrPng));
 
             $attachments[] = Attachment::fromData(
                 fn () => $pdfBytes,
@@ -67,4 +69,3 @@ class GiftCertificateMail extends Mailable
         return $attachments;
     }
 }
-

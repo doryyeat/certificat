@@ -15,7 +15,7 @@ class CertificatePdfController extends Controller
     {
         $order = Order::query()
             ->where('id', $certificate->sold_order_id)
-            ->where('user_id', $request->user()->id)
+            ->where('customer_id', $request->user()->id)
             ->where('status', Order::STATUS_PAID)
             ->first();
 

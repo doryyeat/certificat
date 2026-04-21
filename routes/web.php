@@ -75,6 +75,7 @@ Route::prefix('client')->name('client.')->group(function () {
         Route::get('/my-certificates', [CertificateController::class, 'myCertificates'])->name('my-certificates');
         Route::get('/my-certificates/{certificate}', [CertificateController::class, 'showPurchased'])->name('my-certificates.show');
         Route::get('/my-certificates/{certificate}/pdf', [CertificatePdfController::class, 'download'])->name('my-certificates.pdf');
+        Route::get('/payment/process/{order}', [PaymentController::class, 'checkout'])->name('payment.checkout');
         Route::post('/payment/process/{order}', [PaymentController::class, 'process'])->name('payment.process');
         Route::get('/certificates/{certificate}', [CertificateController::class, 'show'])->name('certificates.show');
 // В routes/web.php добавьте
