@@ -57,7 +57,7 @@ const submit = () => {
                                     </div>
                                     <div>
                                         <div class="text-sm text-gray-500 mb-1">Номинал</div>
-                                        <div class="text-3xl font-bold text-purple-600">{{ certificate.amount }} ₽</div>
+                                        <div class="text-3xl font-bold text-purple-600">{{ certificate.amount }} {{ certificate.currency || 'BYN' }}</div>
                                     </div>
                                     <div>
                                         <div class="text-sm text-gray-500 mb-1">Действует до</div>
@@ -109,10 +109,12 @@ const submit = () => {
 
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">
-                                        Имя получателя
+                                        Имя получателя *
                                     </label>
                                     <input v-model="form.recipient_name"
                                            type="text"
+                                           maxlength="100"
+                                           required
                                            class="w-full rounded-lg border-gray-300 focus:border-purple-500 focus:ring-purple-500"
                                            placeholder="Имя получателя" />
                                 </div>
@@ -130,7 +132,7 @@ const submit = () => {
                                 <div class="border-t pt-4">
                                     <div class="flex justify-between text-lg font-bold mb-4">
                                         <span>Итого:</span>
-                                        <span class="text-purple-600">{{ certificate.amount }} ₽</span>
+                                        <span class="text-purple-600">{{ certificate.amount }} {{ certificate.currency || 'BYN' }}</span>
                                     </div>
 
                                     <button type="submit"

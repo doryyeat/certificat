@@ -44,6 +44,10 @@ class AuthenticatedSessionController extends Controller
             return redirect()->intended(route('dashboard', absolute: false));
         }
 
+        if ($user->hasRole('manager')) {
+            return redirect()->intended(route('manager.redeem', absolute: false));
+        }
+
         if ($user->hasRole('client')) {
             return redirect()->intended(route('dashboard', absolute: false));
         }

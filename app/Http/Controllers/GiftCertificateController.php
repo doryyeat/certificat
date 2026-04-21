@@ -20,8 +20,23 @@ class GiftCertificateController extends Controller
         $search = $request->string('search')->toString();
         $status = $request->string('status')->toString();
         $category = $request->string('category')->toString();
+        $amountMin = $request->input('amount_min');
+        $amountMax = $request->input('amount_max');
+        $expiresFrom = $request->input('expires_from');
+        $expiresTo = $request->input('expires_to');
+        $sortBy = $request->string('sort_by', 'created_at')->toString();
+        $sortDir = strtolower($request->string('sort_dir', 'desc')->toString()) === 'asc' ? 'asc' : 'desc';
 
         $organizationId = $request->user()->organization_id;
+
+        $request->validate([
+            'amount_min' => ['nullable', 'numeric', 'min:0'],
+            'amount_max' => ['nullable', 'numeric', 'min:0'],
+            'expires_from' => ['nullable', 'date'],
+            'expires_to' => ['nullable', 'date'],
+            'sort_by' => ['nullable', 'in:created_at,amount,balance,expires_at,status,title,code'],
+            'sort_dir' => ['nullable', 'in:asc,desc'],
+        ]);
 
         $query = GiftCertificate::query()
             ->with('store')
@@ -37,13 +52,23 @@ class GiftCertificateController extends Controller
             })
             ->when($status, fn ($q) => $q->where('status', $status))
             ->when($category, fn ($q) => $q->where('category', $category))
-            ->orderByDesc('created_at');
+            ->when($amountMin !== null && $amountMin !== '', fn ($q) => $q->where('amount', '>=', $amountMin))
+            ->when($amountMax !== null && $amountMax !== '', fn ($q) => $q->where('amount', '<=', $amountMax))
+            ->when($expiresFrom, fn ($q) => $q->whereDate('expires_at', '>=', $expiresFrom))
+            ->when($expiresTo, fn ($q) => $q->whereDate('expires_at', '<=', $expiresTo))
+            ->orderBy($sortBy, $sortDir);
 
         return Inertia::render('GiftCertificates/Index', [
             'filters' => [
                 'search' => $search,
                 'status' => $status,
                 'category' => $category,
+                'amount_min' => $amountMin,
+                'amount_max' => $amountMax,
+                'expires_from' => $expiresFrom,
+                'expires_to' => $expiresTo,
+                'sort_by' => $sortBy,
+                'sort_dir' => $sortDir,
             ],
             'certificates' => $query->paginate(12)->withQueryString(),
         ]);
@@ -85,11 +110,9 @@ class GiftCertificateController extends Controller
             'amount' => ['required', 'numeric', 'min:0.01', 'max:1000'],
             'currency' => ['required', 'string', 'size:3'],
             'validity_days' => ['required', 'integer', 'min:1', 'max:1095'],
-            'category' => ['required', 'string', 'in:horeca,retail,services'],
+            'category' => ['required', 'string', 'in:horeca,retail,services,sport,entertainment,education'],
             'terms_of_use' => ['nullable', 'string', 'max:1000'],
             'store_id' => ['required', 'exists:stores,id'],
-            'recipient_name' => ['nullable', 'string', 'max:255'],
-            'recipient_email' => ['nullable', 'email', 'max:255'],
             'notes' => ['nullable', 'string'],
         ]);
 
@@ -115,8 +138,6 @@ class GiftCertificateController extends Controller
             'terms_of_use' => $data['terms_of_use'] ?? null,
             'status' => GiftCertificate::STATUS_ACTIVE,
             'expires_at' => $expiresAt,
-            'recipient_name' => $data['recipient_name'] ?? null,
-            'recipient_email' => $data['recipient_email'] ?? null,
             'notes' => $data['notes'] ?? null,
             'created_by' => $request->user()->id,
         ]);
@@ -173,12 +194,10 @@ class GiftCertificateController extends Controller
             'balance' => ['required', 'numeric', 'min:0'],
             'currency' => ['required', 'string', 'size:3'],
             'validity_days' => ['nullable', 'integer', 'min:1', 'max:1095'],
-            'category' => ['required', 'string', 'in:horeca,retail,services'],
+            'category' => ['required', 'string', 'in:horeca,retail,services,sport,entertainment,education'],
             'terms_of_use' => ['nullable', 'string', 'max:1000'],
             'store_id' => ['required', 'exists:stores,id'],
             'expires_at' => ['nullable', 'date'],
-            'recipient_name' => ['nullable', 'string', 'max:255'],
-            'recipient_email' => ['nullable', 'email', 'max:255'],
             'status' => ['required', 'string'],
             'notes' => ['nullable', 'string'],
         ]);
@@ -197,8 +216,6 @@ class GiftCertificateController extends Controller
             'terms_of_use' => $data['terms_of_use'] ?? null,
             'store_id' => $data['store_id'],
             'expires_at' => $data['expires_at'] ?? $certificate->expires_at,
-            'recipient_name' => $data['recipient_name'] ?? null,
-            'recipient_email' => $data['recipient_email'] ?? null,
             'status' => $data['status'],
             'notes' => $data['notes'] ?? null,
         ]);

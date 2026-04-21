@@ -76,6 +76,35 @@ const showingNavigationDropdown = ref(false);
                                 >
                                     Тариф
                                 </NavLink>
+                                <NavLink
+                                    :href="route('business.branding.show')"
+                                    :active="route().current('business.branding.*')"
+                                >
+                                    Брендирование
+                                </NavLink>
+                                <NavLink
+                                    :href="route('business.analytics')"
+                                    :active="route().current('business.analytics*')"
+                                >
+                                    Аналитика
+                                </NavLink>
+                                <NavLink
+                                    :href="route('business.managers.index')"
+                                    :active="route().current('business.managers.*')"
+                                >
+                                    Менеджеры
+                                </NavLink>
+                            </div>
+                            <div
+                                v-else-if="$page.props.auth.isManager"
+                                class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex"
+                            >
+                                <NavLink
+                                    :href="route('manager.redeem')"
+                                    :active="route().current('manager.*')"
+                                >
+                                    Гашение
+                                </NavLink>
                             </div>
                             <div
                                 v-else

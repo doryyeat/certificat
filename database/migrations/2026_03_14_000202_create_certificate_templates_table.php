@@ -19,20 +19,11 @@ return new class extends Migration {
             $table->timestamps();
         });
 
-        Schema::table('gift_certificates', function (Blueprint $table) {
-            $table->foreignId('template_id')
-                ->nullable()
-                ->after('organization_id')
-                ->constrained('certificate_templates')
-                ->nullOnDelete();
-        });
     }
 
     public function down(): void
     {
-        Schema::table('gift_certificates', function (Blueprint $table) {
-            $table->dropConstrainedForeignId('template_id');
-        });
+
 
         Schema::dropIfExists('certificate_templates');
     }

@@ -5,9 +5,14 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\OrganizationController as AdminOrganizationController;
 use App\Http\Controllers\Admin\RegisterRequestController as AdminRegisterRequestController;
 use App\Http\Controllers\Api\Public\PaymentController;
+use App\Http\Controllers\Business\AnalyticsController as BusinessAnalyticsController;
+use App\Http\Controllers\Business\BrandingController as BusinessBrandingController;
+use App\Http\Controllers\Business\ManagerController as BusinessManagerController;
+use App\Http\Controllers\Business\PosRedemptionController;
 use App\Http\Controllers\Business\RegisterRequestController as BusinessRegisterRequestController;
 use App\Http\Controllers\Business\TariffController;
 use App\Http\Controllers\Client\CertificateController;
+use App\Http\Controllers\Client\CertificatePdfController;
 use App\Http\Controllers\ClientTypeController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\GiftCertificateController;
@@ -64,9 +69,12 @@ Route::prefix('client')->name('client.')->group(function () {
 
     // Защищенные роуты для покупателей
     Route::middleware(['auth', 'user.type:client'])->group(function () {
+        // Если кто-то открыл URL покупки напрямую (GET), корректно редиректим на страницу сертификата
+        Route::get('/certificates/{certificate}/purchase', [CertificateController::class, 'purchaseGet'])->name('certificates.purchase.get');
         Route::post('/certificates/{certificate}/purchase', [CertificateController::class, 'purchase'])->name('certificates.purchase');
         Route::get('/my-certificates', [CertificateController::class, 'myCertificates'])->name('my-certificates');
         Route::get('/my-certificates/{certificate}', [CertificateController::class, 'showPurchased'])->name('my-certificates.show');
+        Route::get('/my-certificates/{certificate}/pdf', [CertificatePdfController::class, 'download'])->name('my-certificates.pdf');
         Route::post('/payment/process/{order}', [PaymentController::class, 'process'])->name('payment.process');
         Route::get('/certificates/{certificate}', [CertificateController::class, 'show'])->name('certificates.show');
 // В routes/web.php добавьте
@@ -86,6 +94,16 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'role:business'])->group(function () {
     Route::get('/business/tariff', [TariffController::class, 'show'])->name('business.tariff.show');
     Route::put('/business/tariff', [TariffController::class, 'update'])->name('business.tariff.update');
+    Route::get('/business/branding', [BusinessBrandingController::class, 'show'])->name('business.branding.show');
+    Route::post('/business/branding', [BusinessBrandingController::class, 'update'])->name('business.branding.update');
+    Route::get('/business/branding/preview', [BusinessBrandingController::class, 'preview'])->name('business.branding.preview');
+    Route::get('/business/analytics', [BusinessAnalyticsController::class, 'dashboard'])->name('business.analytics');
+    Route::get('/business/analytics/data', [BusinessAnalyticsController::class, 'data'])->name('business.analytics.data');
+    Route::get('/business/analytics/export.csv', [BusinessAnalyticsController::class, 'exportCsv'])->name('business.analytics.export.csv');
+    Route::get('/business/analytics/export.pdf', [BusinessAnalyticsController::class, 'exportPdf'])->name('business.analytics.export.pdf');
+    Route::get('/business/analytics/buyers.csv', [BusinessAnalyticsController::class, 'exportBuyersCsv'])->name('business.analytics.buyers.csv');
+    Route::get('/business/pos/redeem', [PosRedemptionController::class, 'index'])->name('business.pos.redeem');
+    Route::post('/business/pos/redeem', [PosRedemptionController::class, 'redeem'])->name('business.pos.redeem.submit');
 
     Route::resource('stores', StoreController::class)->except(['show']);
     Route::post('/stores/geocode', [StoreController::class, 'geocode'])->name('stores.geocode');
@@ -97,6 +115,17 @@ Route::middleware(['auth', 'role:business'])->group(function () {
     Route::resource('customers', CustomerController::class)->except(['show']);
     Route::resource('products', ProductController::class)->except(['show']);
     Route::resource('orders', OrderController::class)->only(['index', 'create', 'store', 'show']);
+
+    Route::get('/business/managers', [BusinessManagerController::class, 'index'])->name('business.managers.index');
+    Route::post('/business/managers', [BusinessManagerController::class, 'store'])->name('business.managers.store');
+    Route::delete('/business/managers/{user}', [BusinessManagerController::class, 'destroy'])->name('business.managers.destroy');
+    Route::post('/business/managers/{user}/send-credentials', [BusinessManagerController::class, 'sendCredentialsAction'])->name('business.managers.send');
+});
+
+Route::middleware(['auth', 'role:manager'])->prefix('manager')->name('manager.')->group(function () {
+    Route::get('/redeem', [\App\Http\Controllers\Manager\RedeemController::class, 'index'])->name('redeem');
+    Route::get('/certificates/{code}', [\App\Http\Controllers\Manager\RedeemController::class, 'showByCode'])->name('redeem.show');
+    Route::post('/certificates/{certificate}/redeem', [\App\Http\Controllers\Manager\RedeemController::class, 'redeem'])->name('redeem.submit');
 });
 
 require __DIR__.'/auth.php';

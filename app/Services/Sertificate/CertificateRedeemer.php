@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Certificate;
+namespace App\Services\Sertificate;
 
 use App\Models\Certificate;
 use App\Models\CertificateRedemption;

@@ -39,20 +39,12 @@ return new class extends Migration {
                 ->nullOnDelete();
         });
 
-        Schema::table('gift_certificates', function (Blueprint $table) {
-            $table->foreignId('organization_id')
-                ->nullable()
-                ->after('id')
-                ->constrained('organizations')
-                ->nullOnDelete();
-        });
+
     }
 
     public function down(): void
     {
-        Schema::table('gift_certificates', function (Blueprint $table) {
-            $table->dropConstrainedForeignId('organization_id');
-        });
+
 
         Schema::table('orders', function (Blueprint $table) {
             $table->dropConstrainedForeignId('organization_id');

@@ -22,8 +22,6 @@ const form = useForm({
     expires_at: props.certificate.expires_at
         ? props.certificate.expires_at.substring(0, 10)
         : '',
-    recipient_name: props.certificate.recipient_name,
-    recipient_email: props.certificate.recipient_email,
     status: props.certificate.status,
     notes: props.certificate.notes,
 });
@@ -123,6 +121,15 @@ const redeem = () => {
                                             </option>
                                             <option value="services">
                                                 Сфера услуг
+                                            </option>
+                                            <option value="sport">
+                                                Активный отдых и спорт
+                                            </option>
+                                            <option value="entertainment">
+                                                Впечатления и развлечения
+                                            </option>
+                                            <option value="education">
+                                                Обучение и дети
                                             </option>
                                         </select>
                                         <div
@@ -293,49 +300,6 @@ const redeem = () => {
                                             class="mt-1 text-sm text-red-600"
                                         >
                                             {{ form.errors.expires_at }}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="grid gap-4 sm:grid-cols-2">
-                                    <div>
-                                        <label
-                                            for="recipient_name"
-                                            class="block text-sm font-medium text-gray-700"
-                                        >
-                                            Имя получателя
-                                        </label>
-                                        <input
-                                            id="recipient_name"
-                                            v-model="form.recipient_name"
-                                            type="text"
-                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                                        />
-                                        <div
-                                            v-if="form.errors.recipient_name"
-                                            class="mt-1 text-sm text-red-600"
-                                        >
-                                            {{ form.errors.recipient_name }}
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label
-                                            for="recipient_email"
-                                            class="block text-sm font-medium text-gray-700"
-                                        >
-                                            Email получателя
-                                        </label>
-                                        <input
-                                            id="recipient_email"
-                                            v-model="form.recipient_email"
-                                            type="email"
-                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                                        />
-                                        <div
-                                            v-if="form.errors.recipient_email"
-                                            class="mt-1 text-sm text-red-600"
-                                        >
-                                            {{ form.errors.recipient_email }}
                                         </div>
                                     </div>
                                 </div>

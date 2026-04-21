@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
+use App\Mail\GiftCertificateMail;
 
 class PaymentController extends Controller
 {
@@ -22,6 +23,7 @@ class PaymentController extends Controller
         if (!$order) {
             return redirect()->back()->with('error', 'Order not found');
         }
+        $order->load('items');
 
         $validated = $request->validate([
             'card_number' => 'required|string',
@@ -65,27 +67,28 @@ class PaymentController extends Controller
                 'payment_id' => $paymentResult['transaction_id'],
             ]);
 
-            // Создаем сертификаты для каждого товара в заказе
+            // Подтверждаем покупку сертификатов, которые уже добавлены в заказ
             $certificates = [];
             foreach ($order->items as $item) {
-                $certificate = $this->createCertificateFromOrderItem($item, $order, $purchase);
+                $certificate = $this->finalizeCertificatePurchase($item, $order);
                 $certificates[] = $certificate;
 
-                // Обновляем order_item с id созданного сертификата
-                $item->update(['gift_certificate_id' => $certificate->id]);
-
-                // Привязываем сертификат к заказу
-                $order->giftCertificates()->attach($certificate->id, [
-                    'amount_applied' => $certificate->amount,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
+                // Привязываем сертификат к заказу, если ещё не привязан
+                if (! $order->giftCertificates()->where('gift_certificate_id', $certificate->id)->exists()) {
+                    $order->giftCertificates()->attach($certificate->id, [
+                        'amount_applied' => $certificate->amount,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
             }
 
             DB::commit();
 
             // Отправляем сертификаты на email
             $emailSent = $this->sendCertificatesByEmail($certificates, $order);
+            session()->flash('mail_sent', (bool) $emailSent);
+            session()->flash('mail_transport', (string) config('mail.default'));
 
             // Сохраняем в сессию данные для страницы успеха
             session()->flash('payment_success', true);
@@ -110,10 +113,14 @@ class PaymentController extends Controller
     {
         $certificates = session('certificates', []);
         $order = session('order', null);
+        $mailSent = session('mail_sent', null);
+        $mailTransport = session('mail_transport', null);
 
         return Inertia::render('Payment/Success', [
             'certificates' => $certificates,
             'order' => $order,
+            'mail_sent' => $mailSent,
+            'mail_transport' => $mailTransport,
         ]);
     }
 
@@ -146,55 +153,47 @@ class PaymentController extends Controller
         ];
     }
 
-    private function createCertificateFromOrderItem(OrderItem $item, Order $order, Purchase $purchase): GiftCertificate
+    private function finalizeCertificatePurchase(OrderItem $item, Order $order): GiftCertificate
     {
-        $product = $item->product;
+        if (! $item->gift_certificate_id) {
+            throw new \RuntimeException('Order item does not reference a gift certificate');
+        }
 
-        $code = $this->generateUniqueCode();
-        $validityDays = $product->validity_days ?? 365;
+        $certificate = GiftCertificate::query()->lockForUpdate()->findOrFail($item->gift_certificate_id);
 
-        // Получаем данные получателя из сессии или заказа
-        $recipientEmail = session('recipient_email', $order->recipient_email ?? auth()->user()->email);
-        $recipientName = session('recipient_name', $order->recipient_name ?? auth()->user()->name);
-        $message = session('gift_message', $order->message ?? null);
+        if ((int) $certificate->organization_id !== (int) $order->organization_id) {
+            throw new \RuntimeException('Gift certificate does not belong to this order organization');
+        }
 
-        $certificate = GiftCertificate::create([
-            'organization_id' => $product->organization_id ?? $order->organization_id,
-            'store_id' => $product->store_id ?? null,
-            'template_id' => $product->template_id ?? null,
-            'code' => $code,
-            'title' => $item->name,
-            'amount' => $item->price,
-            'balance' => $item->price,
-            'currency' => 'BYN',
-            'category' => $product->category ?? GiftCertificate::CATEGORY_SERVICES,
-            'validity_days' => $validityDays,
-            'terms_of_use' => $product->terms_of_use ?? null,
-            'status' => GiftCertificate::STATUS_ACTIVE,
-            'expires_at' => now()->addDays($validityDays),
-            'recipient_name' => $recipientName,
-            'recipient_email' => $recipientEmail,
-            'notes' => $message,
-            'created_by' => auth()->id(),
-        ]);
+        if ($certificate->status !== GiftCertificate::STATUS_ACTIVE || $certificate->balance <= 0) {
+            throw new \RuntimeException('Gift certificate is not available for purchase');
+        }
+
+        // Если сертификат уже куплен этим же заказом — идемпотентно возвращаем
+        if ($certificate->sold_at) {
+            if ((int) $certificate->sold_order_id === (int) $order->id) {
+                return $certificate;
+            }
+
+            // Если куплен другим заказом — запрещаем повторную продажу
+            throw new \RuntimeException('Gift certificate has already been sold to another customer');
+        }
+
+        $certificate->recipient_email = $order->recipient_email ?? auth()->user()->email;
+        $certificate->recipient_name = $order->recipient_name ?? auth()->user()->name;
+        $certificate->notes = $order->message ?? null;
+        $certificate->sold_at = now();
+        $certificate->sold_order_id = $order->id;
+        $certificate->save();
 
         return $certificate;
     }
 
-    private function generateUniqueCode(): string
-    {
-        do {
-            $code = strtoupper(Str::random(4) . '-' . Str::random(4) . '-' . Str::random(4) . '-' . Str::random(4));
-        } while (GiftCertificate::where('code', $code)->exists());
-
-        return $code;
-    }
-
     private function sendCertificatesByEmail(array $certificates, Order $order): bool
     {
-        $recipientEmail = session('recipient_email', $order->recipient_email ?? auth()->user()->email);
-        $recipientName = session('recipient_name', $order->recipient_name ?? auth()->user()->name);
-        $giftMessage = session('gift_message', $order->message ?? null);
+        $recipientEmail = $order->recipient_email ?? auth()->user()->email;
+        $recipientName = $order->recipient_name ?? auth()->user()->name;
+        $giftMessage = $order->message ?? null;
 
         if (!$recipientEmail) {
             Log::warning('No recipient email for certificate');
@@ -202,14 +201,9 @@ class PaymentController extends Controller
         }
 
         try {
-            // Создаем представление для email
-            $html = $this->generateCertificateEmailHtml($certificates, $recipientName, $giftMessage, $order);
-
-            Mail::send([], [], function ($message) use ($recipientEmail, $recipientName, $html) {
-                $message->to($recipientEmail, $recipientName)
-                    ->subject('Ваш подарочный сертификат')
-                    ->html($html);
-            });
+            Mail::to($recipientEmail, $recipientName)->send(
+                new GiftCertificateMail($certificates, $recipientName, $giftMessage, $order->number)
+            );
 
             Log::info('Certificate email sent', ['to' => $recipientEmail, 'certificates' => count($certificates)]);
             return true;
@@ -221,60 +215,5 @@ class PaymentController extends Controller
             ]);
             return false;
         }
-    }
-
-    private function generateCertificateEmailHtml(array $certificates, string $recipientName, ?string $giftMessage, Order $order): string
-    {
-        $html = '<!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="UTF-8">
-            <title>Подарочный сертификат</title>
-            <style>
-                body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-                .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-                .header { text-align: center; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 10px 10px 0 0; }
-                .certificate { background: #f9f9f9; border: 1px solid #ddd; border-radius: 10px; padding: 20px; margin: 20px 0; }
-                .code { font-size: 24px; font-weight: bold; text-align: center; letter-spacing: 2px; background: #fff; padding: 10px; border-radius: 5px; }
-                .amount { font-size: 32px; color: #4CAF50; font-weight: bold; text-align: center; }
-                .footer { text-align: center; padding: 20px; font-size: 12px; color: #999; }
-                .message { background: #fff3cd; border-left: 4px solid #ffc107; padding: 10px; margin: 20px 0; }
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <div class="header">
-                    <h1>Подарочный сертификат</h1>
-                    <p>Здравствуйте, ' . htmlspecialchars($recipientName) . '!</p>
-                </div>';
-
-        if ($giftMessage) {
-            $html .= '<div class="message">
-                        <strong>💝 Личное сообщение:</strong>
-                        <p>' . nl2br(htmlspecialchars($giftMessage)) . '</p>
-                      </div>';
-        }
-
-        foreach ($certificates as $cert) {
-            $html .= '<div class="certificate">
-                        <h2>' . htmlspecialchars($cert->title) . '</h2>
-                        <div class="amount">' . number_format($cert->amount, 2) . ' BYN</div>
-                        <div class="code">' . htmlspecialchars($cert->code) . '</div>
-                        <p><strong>Действителен до:</strong> ' . $cert->expires_at->format('d.m.Y') . '</p>
-                        <p><strong>Категория:</strong> ' . htmlspecialchars($cert->category) . '</p>
-                        ' . ($cert->terms_of_use ? '<p><strong>Условия использования:</strong> ' . htmlspecialchars($cert->terms_of_use) . '</p>' : '') . '
-                      </div>';
-        }
-
-        $html .= '<div class="footer">
-                    <p>Спасибо за покупку!</p>
-                    <p>Заказ №' . htmlspecialchars($order->number) . '</p>
-                    <small>Это письмо создано автоматически, пожалуйста, не отвечайте на него.</small>
-                  </div>
-            </div>
-        </body>
-        </html>';
-
-        return $html;
     }
 }

@@ -12,7 +12,7 @@ class CertificateRedemption extends Model
     protected $table = 'certificate_redemptions';
 
     protected $fillable = [
-        'certificate_id',
+        'gift_certificate_id',
         'business_id',
         'location_id',
         'amount',
@@ -33,7 +33,7 @@ class CertificateRedemption extends Model
     // Relationships
     public function certificate()
     {
-        return $this->belongsTo(Certificate::class);
+        return $this->belongsTo(GiftCertificate::class, 'gift_certificate_id');
     }
 
     public function business()

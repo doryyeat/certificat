@@ -18,6 +18,21 @@ class GiftCertificate extends Model
 
     public const CATEGORY_SERVICES = 'services';
 
+    public const CATEGORY_SPORT = 'sport';
+
+    public const CATEGORY_ENTERTAINMENT = 'entertainment';
+
+    public const CATEGORY_EDUCATION = 'education';
+
+    public const CATEGORIES = [
+        self::CATEGORY_HORECA,
+        self::CATEGORY_RETAIL,
+        self::CATEGORY_SERVICES,
+        self::CATEGORY_SPORT,
+        self::CATEGORY_ENTERTAINMENT,
+        self::CATEGORY_EDUCATION,
+    ];
+
     protected $fillable = [
         'organization_id',
         'store_id',
@@ -36,12 +51,15 @@ class GiftCertificate extends Model
         'recipient_email',
         'notes',
         'created_by',
+        'sold_at',
+        'sold_order_id',
     ];
 
     protected $casts = [
         'amount' => 'decimal:2',
         'balance' => 'decimal:2',
         'expires_at' => 'datetime',
+        'sold_at' => 'datetime',
     ];
 
     public const STATUS_DRAFT = 'draft';

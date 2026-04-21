@@ -17,8 +17,6 @@ const form = useForm({
     category: 'horeca',
     terms_of_use: '',
     store_id: props.stores?.[0]?.id ?? '',
-    recipient_name: '',
-    recipient_email: '',
     notes: '',
 });
 
@@ -160,6 +158,15 @@ const submit = () => {
                                     <option value="services">
                                         Сфера услуг
                                     </option>
+                                    <option value="sport">
+                                        Активный отдых и спорт
+                                    </option>
+                                    <option value="entertainment">
+                                        Впечатления и развлечения
+                                    </option>
+                                    <option value="education">
+                                        Обучение и дети
+                                    </option>
                                 </select>
                             </div>
                         </div>
@@ -199,25 +206,6 @@ const submit = () => {
                             <p class="mt-1 text-xs text-gray-500">
                                 Логотип на сертификате — для платных тарифов (загрузка файла можно добавить в хранилище S3/локально).
                             </p>
-                        </div>
-
-                        <div class="grid gap-4 sm:grid-cols-2">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">Имя получателя</label>
-                                <input
-                                    v-model="form.recipient_name"
-                                    type="text"
-                                    class="mt-1 block w-full rounded-md border-gray-300 text-sm"
-                                >
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">Email получателя</label>
-                                <input
-                                    v-model="form.recipient_email"
-                                    type="email"
-                                    class="mt-1 block w-full rounded-md border-gray-300 text-sm"
-                                >
-                            </div>
                         </div>
 
                         <div>

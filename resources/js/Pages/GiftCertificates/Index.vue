@@ -11,9 +11,15 @@ const props = defineProps({
 const search = ref(props.filters.search || '');
 const status = ref(props.filters.status || '');
 const category = ref(props.filters.category || '');
+const amountMin = ref(props.filters.amount_min || '');
+const amountMax = ref(props.filters.amount_max || '');
+const expiresFrom = ref(props.filters.expires_from || '');
+const expiresTo = ref(props.filters.expires_to || '');
+const sortBy = ref(props.filters.sort_by || 'created_at');
+const sortDir = ref(props.filters.sort_dir || 'desc');
 
 watch(
-    [search, status, category],
+    [search, status, category, amountMin, amountMax, expiresFrom, expiresTo, sortBy, sortDir],
     () => {
         router.get(
             route('certificates.index'),
@@ -21,6 +27,12 @@ watch(
                 search: search.value,
                 status: status.value,
                 category: category.value,
+                amount_min: amountMin.value,
+                amount_max: amountMax.value,
+                expires_from: expiresFrom.value,
+                expires_to: expiresTo.value,
+                sort_by: sortBy.value,
+                sort_dir: sortDir.value,
             },
             {
                 preserveState: true,
@@ -43,6 +55,9 @@ const categoryLabel = (cat) => ({
     horeca: 'HoReCa',
     retail: 'Розница',
     services: 'Услуги',
+    sport: 'Активный отдых и спорт',
+    entertainment: 'Впечатления и развлечения',
+    education: 'Обучение и дети',
 }[cat] || cat);
 
 const statusColor = (s) => {
@@ -148,6 +163,88 @@ const statusColor = (s) => {
                             <option value="services">
                                 Сфера услуг
                             </option>
+                            <option value="sport">
+                                Активный отдых и спорт
+                            </option>
+                            <option value="entertainment">
+                                Впечатления и развлечения
+                            </option>
+                            <option value="education">
+                                Обучение и дети
+                            </option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">
+                            Номинал от
+                        </label>
+                        <input
+                            v-model="amountMin"
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            class="mt-1 block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                        >
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">
+                            Номинал до
+                        </label>
+                        <input
+                            v-model="amountMax"
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            class="mt-1 block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                        >
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">
+                            Действует с
+                        </label>
+                        <input
+                            v-model="expiresFrom"
+                            type="date"
+                            class="mt-1 block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                        >
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">
+                            Действует по
+                        </label>
+                        <input
+                            v-model="expiresTo"
+                            type="date"
+                            class="mt-1 block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                        >
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">
+                            Сортировка
+                        </label>
+                        <select
+                            v-model="sortBy"
+                            class="mt-1 block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                        >
+                            <option value="created_at">По новизне</option>
+                            <option value="amount">По номиналу</option>
+                            <option value="balance">По остатку</option>
+                            <option value="expires_at">По сроку действия</option>
+                            <option value="status">По статусу</option>
+                            <option value="title">По названию</option>
+                            <option value="code">По коду</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">
+                            Направление
+                        </label>
+                        <select
+                            v-model="sortDir"
+                            class="mt-1 block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                        >
+                            <option value="desc">По убыванию</option>
+                            <option value="asc">По возрастанию</option>
                         </select>
                     </div>
                 </div>

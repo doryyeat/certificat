@@ -34,18 +34,26 @@ class RolesAndPermissionsSeeder extends Seeder
             'manage products',
             'manage orders',
             'redeem certificates',
+            'manage managers',
         ];
 
-        foreach (array_merge($clientPermissions, $businessPermissions) as $permission) {
+        // Права для менеджера (кассир/оператор точки)
+        $managerPermissions = [
+            'redeem certificates',
+        ];
+
+        foreach (array_merge($clientPermissions, $businessPermissions, $managerPermissions) as $permission) {
             Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'web']);
         }
 
         $clientRole = Role::firstOrCreate(['name' => 'client', 'guard_name' => 'web']);
         $businessRole = Role::firstOrCreate(['name' => 'business', 'guard_name' => 'web']);
+        $managerRole = Role::firstOrCreate(['name' => 'manager', 'guard_name' => 'web']);
         $adminRole = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
 
         $clientRole->syncPermissions($clientPermissions);
         $businessRole->syncPermissions($businessPermissions);
+        $managerRole->syncPermissions($managerPermissions);
         $adminRole->syncPermissions(Permission::where('guard_name', 'web')->get());
     }
 }
