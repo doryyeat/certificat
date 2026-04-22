@@ -63,9 +63,9 @@ const submit = () => {
                         </label>
                     </div>
 
-                    <p class="text-xs text-gray-500">
-                        Переход на Start/Pro в демо применяется без реальной оплаты. Для продакшена подключите платёжный агрегатор (webhook + REST).
-                    </p>
+<!--                    <p class="text-xs text-gray-500">-->
+<!--                        Переход на Start/Pro в демо применяется без реальной оплаты. Для продакшена подключите платёжный агрегатор (webhook + REST).-->
+<!--                    </p>-->
 
                     <button
                         type="submit"

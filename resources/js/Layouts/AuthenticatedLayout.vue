@@ -59,12 +59,6 @@ const showingNavigationDropdown = ref(false);
                                     Клиенты
                                 </NavLink>
                                 <NavLink
-                                    :href="route('products.index')"
-                                    :active="route().current('products.*')"
-                                >
-                                    Товары
-                                </NavLink>
-                                <NavLink
                                     :href="route('orders.index')"
                                     :active="route().current('orders.*')"
                                 >

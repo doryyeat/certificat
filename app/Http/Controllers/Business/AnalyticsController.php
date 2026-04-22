@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Business;
 
 use App\Http\Controllers\Controller;
 use App\Models\GiftCertificate;
-use App\Models\GiftCertificateRedemption;
 use App\Models\Order;
-use App\Services\Notification\PDFGenerator;
+use App\Models\PurchasedCertificate;
+use App\Models\PurchasedCertificateTransaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -30,7 +30,7 @@ class AnalyticsController extends Controller
     public function data(Request $request)
     {
         $organizationId = $request->user()->organization_id;
-        $group = $request->string('group', 'day')->toString(); // day|week|month
+        $group = $request->string('group', 'day')->toString();
 
         $request->validate([
             'from' => ['nullable', 'date'],
@@ -41,6 +41,7 @@ class AnalyticsController extends Controller
         $to = $request->date('to') ?? now();
         $from = $request->date('from') ?? now()->subMonth();
 
+        // Оплаченные заказы
         $paidOrders = Order::query()
             ->where('organization_id', $organizationId)
             ->where('status', Order::STATUS_PAID)
@@ -51,17 +52,23 @@ class AnalyticsController extends Controller
         $feePercent = $request->user()->organization?->transactionFeePercent() ?? 3.0;
         $retainedCommission = round(((float) $revenue) * ($feePercent / 100), 2);
 
-        $redeems = GiftCertificateRedemption::query()
-            ->where('organization_id', $organizationId)
-            ->whereBetween('redeemed_at', [$from, $to]);
+        // Гашения purchased сертификатов (через транзакции)
+        $redemptions = PurchasedCertificateTransaction::query()
+            ->where('type', 'redeem')
+            ->whereHas('certificate', function ($q) use ($organizationId) {
+                $q->where('organization_id', $organizationId);
+            })
+            ->whereBetween('created_at', [$from, $to]);
 
-        $usedCount = (clone $redeems)->count();
-        $usedAmount = (clone $redeems)->sum('amount');
+        $usedCount = (clone $redemptions)->count();
+        $usedAmount = (clone $redemptions)->sum('amount');
 
+        // Серии для графиков
         $salesSeries = $this->series((clone $paidOrders), 'paid_at', 'total_amount', $group);
-        $redeemSeries = $this->series((clone $redeems), 'redeemed_at', 'amount', $group);
+        $redeemSeries = $this->seriesForTransactions((clone $redemptions), 'created_at', 'amount', $group);
 
-        $nominalPopularity = GiftCertificate::query()
+        // Популярность номиналов (из купленных сертификатов)
+        $nominalPopularity = PurchasedCertificate::query()
             ->where('organization_id', $organizationId)
             ->whereNotNull('sold_at')
             ->whereBetween('sold_at', [$from, $to])
@@ -78,8 +85,8 @@ class AnalyticsController extends Controller
                     'sales_count' => $salesCount,
                     'revenue' => (float) $revenue,
                     'used_certificates' => $usedCount,
-                    'retained_commission' => (float) $retainedCommission,
                     'used_amount' => (float) $usedAmount,
+                    'retained_commission' => (float) $retainedCommission,
                     'fee_percent' => (float) $feePercent,
                 ],
                 'series' => [
@@ -139,7 +146,7 @@ class AnalyticsController extends Controller
         ]);
     }
 
-    public function exportPdf(Request $request, PDFGenerator $pdf)
+    public function exportPdf(Request $request)
     {
         $this->requireStartOrPro($request);
         $organizationId = $request->user()->organization_id;
@@ -173,7 +180,6 @@ class AnalyticsController extends Controller
             'feePercent' => $feePercent,
         ])->render();
 
-        // Используем Dompdf напрямую (через наш сервис уже подтянуты зависимости)
         $options = new \Dompdf\Options();
         $options->set('isRemoteEnabled', true);
         $options->set('defaultFont', 'DejaVu Sans');
@@ -253,7 +259,6 @@ class AnalyticsController extends Controller
             },
         };
 
-        // Получаем результаты и преобразуем их в массив с явным приведением типов
         $results = $baseQuery
             ->selectRaw("{$bucketSql} as bucket")
             ->selectRaw('COUNT(*) as count')
@@ -262,14 +267,51 @@ class AnalyticsController extends Controller
             ->orderBy('bucket')
             ->get();
 
-        // Преобразуем каждый результат в обычный массив
         return $results->map(function ($r) {
             return [
-                'bucket' => (string) $r->bucket,  // Явное преобразование в строку
+                'bucket' => (string) $r->bucket,
                 'count' => (int) $r->count,
                 'total' => (float) $r->total,
             ];
-        })->values()->all(); // values() для переиндексации
+        })->values()->all();
+    }
+
+    private function seriesForTransactions($baseQuery, string $dateColumn, string $sumColumn, string $group): array
+    {
+        $driver = DB::getDriverName();
+
+        $bucketSql = match ($group) {
+            'week' => match ($driver) {
+                'pgsql' => "to_char({$dateColumn}, 'IYYY-IW')",
+                'mysql', 'mariadb' => "DATE_FORMAT({$dateColumn}, '%x-%v')",
+                default => "strftime('%Y-%W', {$dateColumn})",
+            },
+            'month' => match ($driver) {
+                'pgsql' => "to_char({$dateColumn}, 'YYYY-MM')",
+                'mysql', 'mariadb' => "DATE_FORMAT({$dateColumn}, '%Y-%m')",
+                default => "strftime('%Y-%m', {$dateColumn})",
+            },
+            default => match ($driver) {
+                'pgsql' => "to_char({$dateColumn}, 'YYYY-MM-DD')",
+                'mysql', 'mariadb' => "DATE({$dateColumn})",
+                default => "date({$dateColumn})",
+            },
+        };
+
+        $results = $baseQuery
+            ->selectRaw("{$bucketSql} as bucket")
+            ->selectRaw('COUNT(*) as count')
+            ->selectRaw("SUM({$sumColumn}) as total")
+            ->groupByRaw($bucketSql)
+            ->orderBy('bucket')
+            ->get();
+
+        return $results->map(function ($r) {
+            return [
+                'bucket' => (string) $r->bucket,
+                'count' => (int) $r->count,
+                'total' => (float) $r->total,
+            ];
+        })->values()->all();
     }
 }
-
