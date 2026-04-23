@@ -282,7 +282,7 @@ onMounted(() => {
                                             </div>
                                             <div class="bg-white/5 rounded-xl p-4">
                                                 <div class="text-sm text-gray-400">Продано</div>
-                                                <div class="text-3xl font-bold text-green-400">245K ₽</div>
+                                                <div class="text-3xl font-bold text-green-400">245K BYN</div>
                                             </div>
                                         </div>
 
@@ -316,13 +316,13 @@ onMounted(() => {
                                             <div class="bg-white/5 rounded-xl p-4">
                                                 <div class="text-sm text-gray-400">Номинал</div>
                                                 <div class="text-3xl font-bold text-yellow-400 animate-bounce">
-                                                    5 000 ₽
+                                                    5 000 BYN
                                                 </div>
                                             </div>
 
                                             <div class="bg-white/5 rounded-xl p-4">
                                                 <div class="text-sm text-gray-400">Баланс</div>
-                                                <div class="text-2xl font-bold text-green-400">3 250 ₽</div>
+                                                <div class="text-2xl font-bold text-green-400">3 250 BYN</div>
                                                 <div class="w-full bg-white/10 rounded-full h-1.5 mt-2">
                                                     <div class="bg-gradient-to-r from-pink-500 to-yellow-500 h-1.5 rounded-full" style="width: 65%"></div>
                                                 </div>

@@ -112,7 +112,7 @@ watch(
                                     {{ order.customer?.name || '—' }}
                                 </td>
                                 <td class="whitespace-nowrap px-4 py-3 text-sm text-gray-900 sm:px-6">
-                                    {{ order.total_amount }} ₽
+                                    {{ order.total_amount }} BYN
                                 </td>
                                 <td class="whitespace-nowrap px-4 py-3 text-sm sm:px-6">
                                     <span

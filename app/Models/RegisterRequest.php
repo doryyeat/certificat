@@ -18,6 +18,7 @@ class RegisterRequest extends Model
     public const STATUS_ACCEPTED = 'accepted';
 
     public const STATUS_REJECTED = 'rejected';
+    public const STATUS_APPROVED = 'accepted';
 
     public function organization(): BelongsTo
     {

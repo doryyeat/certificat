@@ -88,7 +88,7 @@ watch(
                                     {{ product.sku || '—' }}
                                 </td>
                                 <td class="whitespace-nowrap px-4 py-3 text-sm text-gray-900 sm:px-6">
-                                    {{ product.price }} ₽
+                                    {{ product.price }} BYN
                                 </td>
                                 <td class="whitespace-nowrap px-4 py-3 text-sm sm:px-6">
                                     <span

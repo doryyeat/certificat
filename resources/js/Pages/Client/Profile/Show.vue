@@ -74,7 +74,7 @@ const props = defineProps({
                                 <div class="text-sm text-gray-600">Заказов</div>
                             </div>
                             <div class="text-center">
-                                <div class="text-2xl font-bold text-purple-600">0 ₽</div>
+                                <div class="text-2xl font-bold text-purple-600">0 BYN</div>
                                 <div class="text-sm text-gray-600">Потрачено</div>
                             </div>
                         </div>

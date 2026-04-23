@@ -47,8 +47,13 @@
             background-size: cover;
             background-position: center;
             @endif
+             @if(!empty($branding['colors']))
+            background-color: {{ $branding['colors'][0] }};
+            background-size: cover;
+            background-position: center;
+             @endif
         }
-        .logo { height: 34px; vertical-align: middle; }
+        .logo { height: 94px; vertical-align: middle; }
         .header-row { display: table; width: 100%; }
         .header-left, .header-right { display: table-cell; vertical-align: middle; }
         .header-right { text-align: right; }
@@ -59,6 +64,7 @@
     $branding = $branding ?? ['plan' => 'free', 'colors' => [], 'logoBase64' => null, 'backgroundBase64' => null];
 @endphp
 <div class="page">
+
     <div class="card bg">
         <div class="header">
             <div class="header-row">

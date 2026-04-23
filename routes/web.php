@@ -50,6 +50,7 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/analytics/data', [App\Http\Controllers\Admin\DashboardController::class, 'data'])->name('analytics.data');
     Route::get('/', AdminDashboardController::class)->name('dashboard');
     Route::get('/register-requests', [AdminRegisterRequestController::class, 'index'])->name('register-requests.index');
     Route::get('/register-requests/{register_request}', [AdminRegisterRequestController::class, 'show'])->name('register-requests.show');

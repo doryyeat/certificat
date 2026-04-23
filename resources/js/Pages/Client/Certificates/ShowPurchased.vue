@@ -49,7 +49,7 @@ const getStatusText = (status) => {
                                 <p class="opacity-90">{{ certificate.organization?.name }}</p>
                             </div>
                             <div class="text-right">
-                                <div class="text-4xl font-bold">{{ certificate.amount }} ₽</div>
+                                <div class="text-4xl font-bold">{{ certificate.amount }} BYN</div>
                                 <div class="text-sm opacity-75">номинал</div>
                             </div>
                         </div>
@@ -74,7 +74,7 @@ const getStatusText = (status) => {
                             </div>
                             <div>
                                 <div class="text-sm text-gray-500 mb-1">Текущий баланс</div>
-                                <div class="text-2xl font-bold text-purple-600">{{ certificate.balance }} ₽</div>
+                                <div class="text-2xl font-bold text-purple-600">{{ certificate.balance }} BYN</div>
                             </div>
                         </div>
 
@@ -107,7 +107,7 @@ const getStatusText = (status) => {
                                         <div class="text-sm text-gray-500">{{ new Date(transaction.created_at).toLocaleString() }}</div>
                                     </div>
                                     <div class="font-semibold" :class="transaction.type === 'redeem' ? 'text-red-600' : 'text-green-600'">
-                                        {{ transaction.type === 'redeem' ? '-' : '+' }}{{ transaction.amount }} ₽
+                                        {{ transaction.type === 'redeem' ? '-' : '+' }}{{ transaction.amount }} BYN
                                     </div>
                                 </div>
                             </div>

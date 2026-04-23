@@ -52,7 +52,7 @@ const submitPayment = () => {
                 <div class="bg-gray-50 p-4 rounded-lg mb-6">
                     <div class="flex justify-between items-center">
                         <span class="text-gray-600">Сумма к оплате:</span>
-                        <span class="text-2xl font-bold text-purple-600">{{ amount }} ₽</span>
+                        <span class="text-2xl font-bold text-purple-600">{{ amount }} BYN</span>
                     </div>
                     <div class="mt-2 text-sm text-gray-500">
                         <p>Сертификат будет отправлен на: {{ recipient_email }}</p>
@@ -93,7 +93,7 @@ const submitPayment = () => {
 
                     <button type="submit" :disabled="loading"
                             class="w-full bg-purple-600 text-white py-3 rounded-lg font-semibold hover:bg-purple-700 disabled:opacity-50">
-                        {{ loading ? 'Обработка...' : `Оплатить ${amount} ₽` }}
+                        {{ loading ? 'Обработка...' : `Оплатить ${amount} BYN` }}
                     </button>
                 </form>
             </div>

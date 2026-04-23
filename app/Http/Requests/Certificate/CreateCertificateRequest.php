@@ -27,8 +27,8 @@ class CreateCertificateRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'nominal.min' => 'Минимальная сумма сертификата 100 ₽',
-            'nominal.max' => 'Максимальная сумма сертификата 100 000 ₽',
+            'nominal.min' => 'Минимальная сумма сертификата 100 BYN',
+            'nominal.max' => 'Максимальная сумма сертификата 100 000 BYN',
             'location_id.exists' => 'Локация не принадлежит вашему бизнесу',
         ];
     }

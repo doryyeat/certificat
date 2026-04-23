@@ -107,13 +107,13 @@ const props = defineProps({
                                             {{ item.name }}
                                         </td>
                                         <td class="px-4 py-2 text-gray-900 sm:px-6">
-                                            {{ item.price }} ₽
+                                            {{ item.price }} BYN
                                         </td>
                                         <td class="px-4 py-2 text-gray-900 sm:px-6">
                                             {{ item.quantity }}
                                         </td>
                                         <td class="px-4 py-2 text-right text-gray-900 sm:px-6">
-                                            {{ item.total }} ₽
+                                            {{ item.total }} BYN
                                         </td>
                                     </tr>
                                 </tbody>
@@ -132,7 +132,7 @@ const props = defineProps({
                                         Сумма товаров
                                     </dt>
                                     <dd class="text-gray-900">
-                                        {{ order.total_products }} ₽
+                                        {{ order.total_products }} BYN
                                     </dd>
                                 </div>
                                 <div class="flex justify-between">
@@ -140,7 +140,7 @@ const props = defineProps({
                                         Скидка по сертификатам
                                     </dt>
                                     <dd class="text-gray-900">
-                                        −{{ order.total_discount }} ₽
+                                        −{{ order.total_discount }} BYN
                                     </dd>
                                 </div>
                                 <div class="mt-2 flex justify-between border-t border-gray-200 pt-2 text-base font-semibold">
@@ -148,7 +148,7 @@ const props = defineProps({
                                         К оплате
                                     </dt>
                                     <dd class="text-gray-900">
-                                        {{ order.total_amount }} ₽
+                                        {{ order.total_amount }} BYN
                                     </dd>
                                 </div>
                             </dl>
