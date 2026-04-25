@@ -1,0 +1,277 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Certificat API",
+        "description": "Основные публичные, бизнес и админ маршруты API.",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/api/api/certificates": {
+            "get": {
+                "tags": [
+                    "Public Certificates"
+                ],
+                "summary": "Список активных сертификатов",
+                "operationId": "publicCertificatesIndex",
+                "parameters": [
+                    {
+                        "name": "segment",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "lat",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "number",
+                            "format": "float"
+                        }
+                    },
+                    {
+                        "name": "lng",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "number",
+                            "format": "float"
+                        }
+                    },
+                    {
+                        "name": "radius",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 50,
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 50,
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Успешный ответ"
+                    },
+                    "422": {
+                        "description": "Ошибка валидации"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "/",
+                        "description": "Current application host"
+                    }
+                ]
+            }
+        },
+        "/api/api/certificates/{id}": {
+            "get": {
+                "tags": [
+                    "Public Certificates"
+                ],
+                "summary": "Детальная информация о сертификате",
+                "operationId": "publicCertificatesShow",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Успешный ответ"
+                    },
+                    "404": {
+                        "description": "Сертификат не найден"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "/",
+                        "description": "Current application host"
+                    }
+                ]
+            }
+        },
+        "/api/api/payments/yookassa": {
+            "post": {
+                "tags": [
+                    "Public Payments"
+                ],
+                "summary": "Создание платежа через YooKassa",
+                "operationId": "publicPaymentsYookassa",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "order_id"
+                                ],
+                                "properties": {
+                                    "order_id": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Платеж инициирован"
+                    },
+                    "422": {
+                        "description": "Ошибка валидации"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "/",
+                        "description": "Current application host"
+                    }
+                ]
+            }
+        },
+        "/api/api/business/analytics": {
+            "get": {
+                "tags": [
+                    "Business Analytics"
+                ],
+                "summary": "Аналитика бизнеса",
+                "operationId": "businessAnalyticsIndex",
+                "parameters": [
+                    {
+                        "name": "period",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "week",
+                                "month",
+                                "quarter",
+                                "year"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Успешный ответ"
+                    },
+                    "401": {
+                        "description": "Не авторизован"
+                    },
+                    "403": {
+                        "description": "Нет доступа"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctumBearer": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/",
+                        "description": "Current application host"
+                    }
+                ]
+            }
+        },
+        "/api/api/admin/dashboard": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Сводная аналитика платформы",
+                "operationId": "adminDashboardIndex",
+                "parameters": [
+                    {
+                        "name": "period",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "week",
+                                "month",
+                                "quarter",
+                                "year"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Успешный ответ"
+                    },
+                    "401": {
+                        "description": "Не авторизован"
+                    },
+                    "403": {
+                        "description": "Нет доступа"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctumBearer": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/",
+                        "description": "Current application host"
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "sanctumBearer": {
+                "type": "http",
+                "description": "Bearer token (Sanctum)",
+                "bearerFormat": "Token",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Public Certificates",
+            "description": "Public Certificates"
+        },
+        {
+            "name": "Public Payments",
+            "description": "Public Payments"
+        },
+        {
+            "name": "Business Analytics",
+            "description": "Business Analytics"
+        },
+        {
+            "name": "Admin",
+            "description": "Admin"
+        }
+    ]
+}
