@@ -82,7 +82,7 @@ const resetFilters = () => {
                             <label class="block text-sm font-medium text-gray-700 mb-2">Сортировка</label>
                             <select v-model="sort"
                                     class="w-full rounded-lg border-gray-300 focus:border-purple-500 focus:ring-purple-500">
-                                <option value="default">По умолчанию (Pro → Start → Free)</option>
+                                <option value="default">По умолчанию</option>
                                 <option value="price_asc">По цене (возрастание)</option>
                                 <option value="price_desc">По цене (убывание)</option>
                                 <option value="popularity">По популярности (30 дней)</option>

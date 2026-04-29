@@ -49,7 +49,7 @@ const submit = () => {
                     v-if="requiresStore"
                     class="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900"
                 >
-                    Сначала добавьте точку продаж во вкладке «Магазины» — без неё выпуск сертификата недоступен (ТЗ).
+                    Сначала добавьте точку продаж во вкладке «Магазины» — без неё выпуск сертификата недоступен.
                     <Link
                         :href="route('stores.create')"
                         class="ml-1 font-medium text-amber-950 underline"

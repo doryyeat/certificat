@@ -32,7 +32,7 @@ const submit = () => {
                 <div class="rounded-lg border border-indigo-100 bg-indigo-50 p-4 text-sm text-indigo-900">
                     Текущая транзакционная комиссия по вашему тарифу:
                     <strong>{{ feePercent }}%</strong>
-                    (ТЗ: Free 3%, Start 2%, Pro 1,5%)
+                    (Free 3%, Start 2%, Pro 1,5%)
                 </div>
 
                 <form

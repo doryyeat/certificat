@@ -89,7 +89,7 @@ const statusColor = (s) => {
                         Каталог сертификатов
                     </h2>
                     <p class="mt-1 text-sm text-gray-500">
-                        Карточки, фильтры и поиск по ТЗ GiftHub
+                        Карточки, фильтры и поиск
                     </p>
                 </div>
                 <Link

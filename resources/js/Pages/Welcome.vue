@@ -407,7 +407,6 @@ onMounted(() => {
                         <div v-for="(feature, index) in [
                             { icon: '🎨', title: 'Большой выбор', desc: 'Тысячи сертификатов на любой вкус' },
                             { icon: '⚡', title: 'Мгновенно', desc: 'Получите PDF на email сразу' },
-                            { icon: '💝', title: 'SmartShare', desc: 'Делитесь с друзьями' },
                             { icon: '🔔', title: 'Напоминания', desc: 'Не пропустите срок действия' },
                         ]" :key="index" class="group relative bg-white/5 backdrop-blur-sm rounded-2xl p-8 hover:bg-white/10 transition-all duration-500 transform hover:-translate-y-2 animate-on-scroll">
                             <div class="relative z-10">
