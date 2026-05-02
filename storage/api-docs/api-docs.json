@@ -2,14 +2,14 @@
     "openapi": "3.0.0",
     "info": {
         "title": "Certificat API",
-        "description": "Основные публичные, бизнес и админ маршруты API.",
+        "description": "Документация API и web-маршрутов для клиентской, бизнес и админ частей.",
         "version": "1.0.0"
     },
     "paths": {
         "/api/api/certificates": {
             "get": {
                 "tags": [
-                    "Public Certificates"
+                    "Public API"
                 ],
                 "summary": "Список активных сертификатов",
                 "operationId": "publicCertificatesIndex",
@@ -80,7 +80,7 @@
         "/api/api/certificates/{id}": {
             "get": {
                 "tags": [
-                    "Public Certificates"
+                    "Public API"
                 ],
                 "summary": "Детальная информация о сертификате",
                 "operationId": "publicCertificatesShow",
@@ -113,7 +113,7 @@
         "/api/api/payments/yookassa": {
             "post": {
                 "tags": [
-                    "Public Payments"
+                    "Public API"
                 ],
                 "summary": "Создание платежа через YooKassa",
                 "operationId": "publicPaymentsYookassa",
@@ -154,7 +154,7 @@
         "/api/api/business/analytics": {
             "get": {
                 "tags": [
-                    "Business Analytics"
+                    "Business API"
                 ],
                 "summary": "Аналитика бизнеса",
                 "operationId": "businessAnalyticsIndex",
@@ -201,7 +201,7 @@
         "/api/api/admin/dashboard": {
             "get": {
                 "tags": [
-                    "Admin"
+                    "Admin API"
                 ],
                 "summary": "Сводная аналитика платформы",
                 "operationId": "adminDashboardIndex",
@@ -244,6 +244,326 @@
                     }
                 ]
             }
+        },
+        "/set-client-type": {
+            "post": {
+                "tags": [
+                    "Web Public"
+                ],
+                "summary": "Сохранить тип клиента в cookie",
+                "operationId": "webSetClientType",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "client_type"
+                                ],
+                                "properties": {
+                                    "client_type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "client",
+                                            "business"
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Тип клиента сохранен"
+                    },
+                    "422": {
+                        "description": "Ошибка валидации"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "/",
+                        "description": "Current application host"
+                    }
+                ]
+            }
+        },
+        "/register/request": {
+            "post": {
+                "tags": [
+                    "Web Public"
+                ],
+                "summary": "Отправить заявку на регистрацию бизнеса (legacy endpoint)",
+                "operationId": "webBusinessRegisterRequestLegacy",
+                "responses": {
+                    "200": {
+                        "description": "Заявка отправлена"
+                    },
+                    "422": {
+                        "description": "Ошибка валидации"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "/",
+                        "description": "Current application host"
+                    }
+                ]
+            }
+        },
+        "/business/register-request": {
+            "post": {
+                "tags": [
+                    "Web Public"
+                ],
+                "summary": "Отправить заявку на регистрацию бизнеса",
+                "operationId": "webBusinessRegisterRequest",
+                "responses": {
+                    "200": {
+                        "description": "Заявка отправлена"
+                    },
+                    "422": {
+                        "description": "Ошибка валидации"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "/",
+                        "description": "Current application host"
+                    }
+                ]
+            }
+        },
+        "/client/certificates/{certificate}/purchase": {
+            "post": {
+                "tags": [
+                    "Web Client"
+                ],
+                "summary": "Покупка сертификата клиентом",
+                "operationId": "webClientCertificatePurchase",
+                "parameters": [
+                    {
+                        "name": "certificate",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "302": {
+                        "description": "Покупка инициирована"
+                    },
+                    "401": {
+                        "description": "Не авторизован"
+                    },
+                    "422": {
+                        "description": "Ошибка валидации"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctumBearer": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/",
+                        "description": "Current application host"
+                    }
+                ]
+            }
+        },
+        "/client/payment/process/{order}": {
+            "post": {
+                "tags": [
+                    "Web Client"
+                ],
+                "summary": "Обработка оплаты заказа клиента",
+                "operationId": "webClientPaymentProcess",
+                "parameters": [
+                    {
+                        "name": "order",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Платеж обработан"
+                    },
+                    "302": {
+                        "description": "Редирект после оплаты"
+                    },
+                    "401": {
+                        "description": "Не авторизован"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctumBearer": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/",
+                        "description": "Current application host"
+                    }
+                ]
+            }
+        },
+        "/business/branding": {
+            "post": {
+                "tags": [
+                    "Web Business"
+                ],
+                "summary": "Обновить брендирование бизнеса",
+                "operationId": "webBusinessBrandingUpdate",
+                "responses": {
+                    "302": {
+                        "description": "Брендирование обновлено"
+                    },
+                    "401": {
+                        "description": "Не авторизован"
+                    },
+                    "403": {
+                        "description": "Нет доступа"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctumBearer": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/",
+                        "description": "Current application host"
+                    }
+                ]
+            }
+        },
+        "/business/pos/redeem": {
+            "post": {
+                "tags": [
+                    "Web Business"
+                ],
+                "summary": "Погасить сертификат на POS",
+                "operationId": "webBusinessPosRedeem",
+                "responses": {
+                    "200": {
+                        "description": "Сертификат погашен"
+                    },
+                    "401": {
+                        "description": "Не авторизован"
+                    },
+                    "403": {
+                        "description": "Нет доступа"
+                    },
+                    "422": {
+                        "description": "Ошибка валидации"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctumBearer": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/",
+                        "description": "Current application host"
+                    }
+                ]
+            }
+        },
+        "/admin/register-requests/{register_request}/accept": {
+            "post": {
+                "tags": [
+                    "Web Admin"
+                ],
+                "summary": "Подтвердить заявку на регистрацию",
+                "operationId": "webAdminRegisterRequestAccept",
+                "parameters": [
+                    {
+                        "name": "register_request",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "302": {
+                        "description": "Заявка подтверждена"
+                    },
+                    "401": {
+                        "description": "Не авторизован"
+                    },
+                    "403": {
+                        "description": "Нет доступа"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctumBearer": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/",
+                        "description": "Current application host"
+                    }
+                ]
+            }
+        },
+        "/admin/register-requests/{register_request}/reject": {
+            "post": {
+                "tags": [
+                    "Web Admin"
+                ],
+                "summary": "Отклонить заявку на регистрацию",
+                "operationId": "webAdminRegisterRequestReject",
+                "parameters": [
+                    {
+                        "name": "register_request",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "302": {
+                        "description": "Заявка отклонена"
+                    },
+                    "401": {
+                        "description": "Не авторизован"
+                    },
+                    "403": {
+                        "description": "Нет доступа"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctumBearer": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/",
+                        "description": "Current application host"
+                    }
+                ]
+            }
         }
     },
     "components": {
@@ -258,20 +578,25 @@
     },
     "tags": [
         {
-            "name": "Public Certificates",
-            "description": "Public Certificates"
+            "name": "Public API"
         },
         {
-            "name": "Public Payments",
-            "description": "Public Payments"
+            "name": "Business API"
         },
         {
-            "name": "Business Analytics",
-            "description": "Business Analytics"
+            "name": "Admin API"
         },
         {
-            "name": "Admin",
-            "description": "Admin"
+            "name": "Web Public"
+        },
+        {
+            "name": "Web Client"
+        },
+        {
+            "name": "Web Business"
+        },
+        {
+            "name": "Web Admin"
         }
     ]
 }

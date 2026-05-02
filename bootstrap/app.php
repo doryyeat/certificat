@@ -2,6 +2,8 @@
 
 use App\Http\Middleware\CheckUserType;
 use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\SubscriptionMiddleware;
+use App\Http\Middleware\VerifiedBusinessMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -20,12 +22,19 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'user.type' => CheckUserType::class,
             'role' => RoleMiddleware::class,
+            'verified.business' => VerifiedBusinessMiddleware::class,
+            'subscription' => SubscriptionMiddleware::class,
         ]);
 
         // Добавляем middleware для web группы
         $middleware->web(append: [
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
+        ]);
+        $middleware->validateCsrfTokens(except: [
+            'client-type/set', // ваш маршрут
+            'api/*',
+/*',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
