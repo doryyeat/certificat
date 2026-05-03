@@ -198,6 +198,198 @@
                 ]
             }
         },
+        "/api/api/business/certificates/{certificate}": {
+            "put": {
+                "tags": [
+                    "Business API"
+                ],
+                "summary": "Обновить сертификат бизнеса",
+                "operationId": "businessCertificatesUpdate",
+                "parameters": [
+                    {
+                        "name": "certificate",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Сертификат обновлен"
+                    },
+                    "401": {
+                        "description": "Не авторизован"
+                    },
+                    "403": {
+                        "description": "Нет доступа"
+                    },
+                    "422": {
+                        "description": "Ошибка валидации"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctumBearer": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/",
+                        "description": "Current application host"
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Business API"
+                ],
+                "summary": "Удалить сертификат бизнеса",
+                "operationId": "businessCertificatesDestroy",
+                "parameters": [
+                    {
+                        "name": "certificate",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Сертификат удален"
+                    },
+                    "401": {
+                        "description": "Не авторизован"
+                    },
+                    "403": {
+                        "description": "Нет доступа"
+                    },
+                    "404": {
+                        "description": "Сертификат не найден"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctumBearer": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/",
+                        "description": "Current application host"
+                    }
+                ]
+            }
+        },
+        "/api/api/business/locations/{location}": {
+            "put": {
+                "tags": [
+                    "Business API"
+                ],
+                "summary": "Обновить локацию бизнеса",
+                "operationId": "businessLocationsUpdate",
+                "parameters": [
+                    {
+                        "name": "location",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Локация обновлена"
+                    },
+                    "401": {
+                        "description": "Не авторизован"
+                    },
+                    "403": {
+                        "description": "Нет доступа"
+                    },
+                    "422": {
+                        "description": "Ошибка валидации"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctumBearer": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/",
+                        "description": "Current application host"
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Business API"
+                ],
+                "summary": "Удалить локацию бизнеса",
+                "operationId": "businessLocationsDestroy",
+                "parameters": [
+                    {
+                        "name": "location",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Локация удалена"
+                    },
+                    "401": {
+                        "description": "Не авторизован"
+                    },
+                    "403": {
+                        "description": "Нет доступа"
+                    },
+                    "404": {
+                        "description": "Локация не найдена"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctumBearer": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/",
+                        "description": "Current application host"
+                    }
+                ]
+            }
+        },
         "/api/api/admin/dashboard": {
             "get": {
                 "tags": [
@@ -230,6 +422,102 @@
                     },
                     "403": {
                         "description": "Нет доступа"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctumBearer": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/",
+                        "description": "Current application host"
+                    }
+                ]
+            }
+        },
+        "/api/api/admin/businesses/{business}": {
+            "put": {
+                "tags": [
+                    "Admin API"
+                ],
+                "summary": "Обновить бизнес",
+                "operationId": "adminBusinessesUpdate",
+                "parameters": [
+                    {
+                        "name": "business",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Бизнес обновлен"
+                    },
+                    "401": {
+                        "description": "Не авторизован"
+                    },
+                    "403": {
+                        "description": "Нет доступа"
+                    },
+                    "422": {
+                        "description": "Ошибка валидации"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctumBearer": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/",
+                        "description": "Current application host"
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Admin API"
+                ],
+                "summary": "Удалить бизнес",
+                "operationId": "adminBusinessesDestroy",
+                "parameters": [
+                    {
+                        "name": "business",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Бизнес удален"
+                    },
+                    "401": {
+                        "description": "Не авторизован"
+                    },
+                    "403": {
+                        "description": "Нет доступа"
+                    },
+                    "404": {
+                        "description": "Бизнес не найден"
                     }
                 },
                 "security": [

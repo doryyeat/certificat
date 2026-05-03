@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root {
+      --bg: #e8e8e8;
+      --paper: #f4f4f4;
+      --line: #9a9a9a;
+      --block: #c8c8c8;
+      --block-dark: #a8a8a8;
+      --text: #3a3a3a;
+      --muted: #6e6e6e;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.45;
+    }
+    h1 {
+      text-align: center;
+      font-weight: 600;
+      font-size: 1.25rem;
+      padding: 1rem 1rem 0.75rem;
+      margin: 0;
+      background: var(--paper);
+    }
+    .pager {
+      text-align: center;
+      padding: 0.5rem 1rem 1rem;
+      background: var(--paper);
+      border-bottom: 2px dashed var(--line);
+      font-size: 0.9rem;
+    }
+    .pager a { color: #1a5a9e; font-weight: 600; }
+    .toc {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 1rem 1.25rem;
+      background: var(--paper);
+      border-bottom: 1px solid #ccc;
+    }
+    .toc h2 { font-size: 0.85rem; margin: 0 0 0.5rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+    .toc ul { margin: 0; padding-left: 1.25rem; columns: 2; gap: 1rem; font-size: 0.9rem; }
+    .toc a { color: var(--text); }
+    main { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
+    section.page {
+      background: var(--paper);
+      border: 2px dashed var(--line);
+      margin-bottom: 2rem;
+      padding: 0.75rem 1rem 1rem;
+      page-break-inside: avoid;
+    }
+    section.page > header {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.35rem;
+      border-bottom: 1px solid #bbb;
+    }
+    .wf {
+      border: 1px dashed var(--line);
+      background: #fafafa;
+      min-height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      color: var(--muted);
+      padding: 4px 6px;
+      text-align: center;
+    }
+    .wf-bar {
+      height: 44px;
+      background: linear-gradient(180deg, #d0d0d0, #b8b8b8);
+      border: 1px solid #888;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .wf-logo { width: 72px; height: 28px; background: #8a8a8a; border-radius: 4px; }
+    .wf-nav { flex: 1; display: flex; flex-wrap: wrap; gap: 6px; }
+    .wf-pill { height: 22px; min-width: 48px; background: #a0a0a0; border-radius: 3px; font-size: 0.55rem; color: #eee; display: flex; align-items: center; justify-content: center; padding: 0 6px; }
+    .wf-user { width: 80px; height: 26px; background: #909090; border-radius: 4px; }
+    .wf-row { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+    .wf-col { flex: 1; min-width: 120px; display: flex; flex-direction: column; gap: 8px; }
+    .wf-block { background: var(--block); border: 1px solid #888; min-height: 80px; padding: 8px; }
+    .wf-block.dark { background: var(--block-dark); }
+    .wf-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .wf-grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .wf-card { background: #d4d4d4; border: 1px solid #777; min-height: 100px; padding: 6px; font-size: 0.65rem; color: #444; }
+    .wf-table { width: 100%; border-collapse: collapse; font-size: 0.65rem; }
+    .wf-table th, .wf-table td { border: 1px dashed #777; padding: 6px; background: #ddd; }
+    .wf-table th { background: #bbb; }
+    .wf-footer { margin-top: 10px; height: 36px; background: #bdbdbd; border: 1px solid #888; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; color: #444; }
+    .wf-hero { min-height: 140px; background: linear-gradient(135deg, #ccc, #aaa); border: 1px solid #777; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; color: #333; }
+    .wf-input { height: 28px; background: #ddd; border: 1px dashed #666; width: 100%; margin-bottom: 8px; }
+    .wf-btn { height: 32px; width: 120px; background: #888; border: 1px solid #555; margin-top: 4px; }
+    @media (max-width: 700px) {
+      .toc ul { columns: 1; }
+      .wf-grid2, .wf-grid3 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="toc">
+    <h2>Оглавление</h2>
+    <ul>
+      <li><a href="#welcome">Главная</a></li>
+      <li><a href="#auth">Вход / регистрация</a></li>
+      <li><a href="#client-catalog">Покупатель: каталог сертификатов</a></li>
+      <li><a href="#client-card">Покупатель: карточка сертификата</a></li>
+      <li><a href="#client-mine">Покупатель: мои сертификаты</a></li>
+      <li><a href="#client-pay">Покупатель: оплата</a></li>
+      <li><a href="#client-profile">Покупатель: профиль</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <section class="page" id="welcome">
+      <header>Главная (/) — Welcome, выбор «клиент / бизнес»</header>
+      <div class="wf-bar">
+        <div class="wf-logo" title="логотип"></div>
+        <div class="wf-nav">
+          <span class="wf-pill">Каталог</span>
+          <span class="wf-pill">Войти</span>
+          <span class="wf-pill">Регистрация</span>
+        </div>
+      </div>
+      <div class="wf-hero">Hero: слоган + CTA «купить сертификат» / «для бизнеса»</div>
+      <div class="wf-grid3">
+        <div class="wf-card">Блок: как это работает (3 шага)</div>
+        <div class="wf-card">Блок: преимущества</div>
+        <div class="wf-card">Переключатель типа пользователя</div>
+      </div>
+      <div class="wf-footer">Подвал: ссылки, контакты</div>
+    </section>
+
+    <section class="page" id="auth">
+      <header>Вход / регистрация (Laravel Breeze)</header>
+      <div class="wf-row">
+        <div class="wf-col" style="max-width: 360px;">
+          <div class="wf-block">
+            <div class="wf-form">
+              <span class="wf">Email</span>
+              <div class="wf-input"></div>
+              <span class="wf">Пароль</span>
+              <div class="wf-input"></div>
+              <div class="wf-btn"></div>
+            </div>
+          </div>
+        </div>
+        <div class="wf-col">
+          <div class="wf dark" style="min-height:160px;">Иллюстрация / бренд (серый плейсхолдер)</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" id="client-catalog">
+      <header>Покупатель: каталог (/client/certificates)</header>
+      <div class="wf-bar">
+        <div class="wf-logo"></div>
+        <div class="wf-nav">
+          <span class="wf-pill">Каталог</span>
+          <span class="wf-pill">Мои сертификаты</span>
+          <span class="wf-pill">Профиль</span>
+        </div>
+        <div class="wf-user"></div>
+      </div>
+      <div class="wf-row">
+        <div class="wf" style="flex:1; min-height:36px;">Фильтры / поиск / сортировка</div>
+      </div>
+      <div class="wf-grid3">
+        <div class="wf-card">Карточка сертификата<br>фото · цена · кнопка</div>
+        <div class="wf-card">Карточка сертификата</div>
+        <div class="wf-card">Карточка сертификата</div>
+        <div class="wf-card">Карточка сертификата</div>
+        <div class="wf-card">Карточка сертификата</div>
+        <div class="wf-card">Карточка сертификата</div>
+      </div>
+    </section>
+
+    <section class="page" id="client-card">
+      <header>Покупатель: карточка сертификата + покупка</header>
+      <div class="wf-bar"><div class="wf-logo"></div><div class="wf-nav"><span class="wf-pill">← Назад</span></div><div class="wf-user"></div></div>
+      <div class="wf-row">
+        <div class="wf-col" style="flex:1.2;">
+          <div class="wf-block dark" style="min-height:220px;">Большое изображение / превью</div>
+        </div>
+        <div class="wf-col">
+          <div class="wf">Название · организация</div>
+          <div class="wf">Описание (несколько строк)</div>
+          <div class="wf">Номинал / варианты</div>
+          <div class="wf-btn" style="width:100%; max-width:200px;">Купить</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" id="client-mine">
+      <header>Покупатель: мои сертификаты</header>
+      <div class="wf-bar"><div class="wf-logo"></div><div class="wf-nav"><span class="wf-pill">Мои сертификаты</span></div><div class="wf-user"></div></div>
+      <table class="wf-table">
+        <thead><tr><th>Сертификат</th><th>Статус</th><th>Срок</th><th>Действия</th></tr></thead>
+        <tbody>
+          <tr><td>…</td><td>Активен</td><td>…</td><td>Открыть · PDF</td></tr>
+          <tr><td>…</td><td>…</td><td>…</td><td>…</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="page" id="client-pay">
+      <header>Покупатель: оплата / успех</header>
+      <div class="wf-block" style="max-width:480px; margin:0 auto;">
+        <div class="wf">Реквизиты заказа · сумма</div>
+        <div class="wf-input" style="margin-top:12px;"></div>
+        <div class="wf-input"></div>
+        <div class="wf-btn" style="width:100%;"></div>
+        <div class="wf" style="margin-top:16px; min-height:48px;">Экран «Успешная оплата» — галочка + ссылка в «Мои сертификаты»</div>
+      </div>
+    </section>
+
+    <section class="page" id="client-profile">
+      <header>Покупатель: профиль (/client/profile)</header>
+      <div class="wf-bar"><div class="wf-logo"></div><div class="wf-nav"><span class="wf-pill">Профиль</span></div><div class="wf-user"></div></div>
+      <div class="wf-grid2">
+        <div class="wf-block">
+          <div class="wf">Данные профиля</div>
+          <div class="wf-input"></div><div class="wf-input"></div>
+          <div class="wf-btn"></div>
+        </div>
+        <div class="wf-block">
+          <div class="wf">Смена пароля</div>
+          <div class="wf-input"></div><div class="wf-input"></div>
+          <div class="wf-btn"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

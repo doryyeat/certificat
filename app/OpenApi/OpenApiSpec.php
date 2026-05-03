@@ -96,6 +96,78 @@ use OpenApi\Attributes as OA;
         new OA\Response(response: 403, description: 'Нет доступа'),
     ]
 )]
+#[OA\Put(
+    path: '/api/api/business/certificates/{certificate}',
+    operationId: 'businessCertificatesUpdate',
+    tags: ['Business API'],
+    summary: 'Обновить сертификат бизнеса',
+    security: [['sanctumBearer' => []]],
+    parameters: [
+        new OA\Parameter(name: 'certificate', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+    ],
+    requestBody: new OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(type: 'object')
+    ),
+    responses: [
+        new OA\Response(response: 200, description: 'Сертификат обновлен'),
+        new OA\Response(response: 401, description: 'Не авторизован'),
+        new OA\Response(response: 403, description: 'Нет доступа'),
+        new OA\Response(response: 422, description: 'Ошибка валидации'),
+    ]
+)]
+#[OA\Delete(
+    path: '/api/api/business/certificates/{certificate}',
+    operationId: 'businessCertificatesDestroy',
+    tags: ['Business API'],
+    summary: 'Удалить сертификат бизнеса',
+    security: [['sanctumBearer' => []]],
+    parameters: [
+        new OA\Parameter(name: 'certificate', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+    ],
+    responses: [
+        new OA\Response(response: 200, description: 'Сертификат удален'),
+        new OA\Response(response: 401, description: 'Не авторизован'),
+        new OA\Response(response: 403, description: 'Нет доступа'),
+        new OA\Response(response: 404, description: 'Сертификат не найден'),
+    ]
+)]
+#[OA\Put(
+    path: '/api/api/business/locations/{location}',
+    operationId: 'businessLocationsUpdate',
+    tags: ['Business API'],
+    summary: 'Обновить локацию бизнеса',
+    security: [['sanctumBearer' => []]],
+    parameters: [
+        new OA\Parameter(name: 'location', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+    ],
+    requestBody: new OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(type: 'object')
+    ),
+    responses: [
+        new OA\Response(response: 200, description: 'Локация обновлена'),
+        new OA\Response(response: 401, description: 'Не авторизован'),
+        new OA\Response(response: 403, description: 'Нет доступа'),
+        new OA\Response(response: 422, description: 'Ошибка валидации'),
+    ]
+)]
+#[OA\Delete(
+    path: '/api/api/business/locations/{location}',
+    operationId: 'businessLocationsDestroy',
+    tags: ['Business API'],
+    summary: 'Удалить локацию бизнеса',
+    security: [['sanctumBearer' => []]],
+    parameters: [
+        new OA\Parameter(name: 'location', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+    ],
+    responses: [
+        new OA\Response(response: 200, description: 'Локация удалена'),
+        new OA\Response(response: 401, description: 'Не авторизован'),
+        new OA\Response(response: 403, description: 'Нет доступа'),
+        new OA\Response(response: 404, description: 'Локация не найдена'),
+    ]
+)]
 #[OA\Get(
     path: '/api/api/admin/dashboard',
     operationId: 'adminDashboardIndex',
@@ -109,6 +181,42 @@ use OpenApi\Attributes as OA;
         new OA\Response(response: 200, description: 'Успешный ответ'),
         new OA\Response(response: 401, description: 'Не авторизован'),
         new OA\Response(response: 403, description: 'Нет доступа'),
+    ]
+)]
+#[OA\Put(
+    path: '/api/api/admin/businesses/{business}',
+    operationId: 'adminBusinessesUpdate',
+    tags: ['Admin API'],
+    summary: 'Обновить бизнес',
+    security: [['sanctumBearer' => []]],
+    parameters: [
+        new OA\Parameter(name: 'business', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+    ],
+    requestBody: new OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(type: 'object')
+    ),
+    responses: [
+        new OA\Response(response: 200, description: 'Бизнес обновлен'),
+        new OA\Response(response: 401, description: 'Не авторизован'),
+        new OA\Response(response: 403, description: 'Нет доступа'),
+        new OA\Response(response: 422, description: 'Ошибка валидации'),
+    ]
+)]
+#[OA\Delete(
+    path: '/api/api/admin/businesses/{business}',
+    operationId: 'adminBusinessesDestroy',
+    tags: ['Admin API'],
+    summary: 'Удалить бизнес',
+    security: [['sanctumBearer' => []]],
+    parameters: [
+        new OA\Parameter(name: 'business', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+    ],
+    responses: [
+        new OA\Response(response: 200, description: 'Бизнес удален'),
+        new OA\Response(response: 401, description: 'Не авторизован'),
+        new OA\Response(response: 403, description: 'Нет доступа'),
+        new OA\Response(response: 404, description: 'Бизнес не найден'),
     ]
 )]
 #[OA\Post(

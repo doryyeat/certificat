@@ -34,7 +34,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->validateCsrfTokens(except: [
             'client-type/set', // ваш маршрут
             'api/*',
-/*',
+'/*',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
