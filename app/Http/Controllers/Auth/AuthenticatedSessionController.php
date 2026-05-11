@@ -48,8 +48,8 @@ class AuthenticatedSessionController extends Controller
             return redirect()->intended(route('manager.redeem', absolute: false));
         }
 
-        if ($user->hasRole('client')) {
-            return redirect()->intended(route('client.certificates.index', absolute: false));
+        if ($user->client_type === 'client') {
+            return redirect()->intended(route('client.my-certificates', absolute: false));
         }
 
         return redirect()->intended(route('dashboard', absolute: false));

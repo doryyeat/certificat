@@ -332,10 +332,7 @@ onMounted(() => {
 
                                     <div class="bg-white/5 rounded-xl p-4">
                                         <div class="flex items-center justify-between mb-3">
-                                            <span class="text-sm font-medium">SmartShare</span>
-                                            <span class="text-xs px-2 py-1 bg-green-500/20 rounded-full text-green-300 animate-pulse">
-                                                🔥 Активно
-                                            </span>
+
                                         </div>
 
                                         <div class="flex items-center space-x-2">
@@ -385,14 +382,13 @@ onMounted(() => {
                     </span>
                 </h2>
 
-                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                     <template v-if="selectedType === 'business'">
                         <div v-for="(feature, index) in [
                             { icon: '💰', title: '0% комиссии', desc: 'Первые 50 сертификатов бесплатно' },
                             { icon: '📊', title: 'Аналитика', desc: 'Детальная статистика продаж' },
                             { icon: '🎨', title: 'Шаблоны', desc: 'Готовые дизайны сертификатов' },
-                            { icon: '🔌', title: 'API доступ', desc: 'Интеграция с вашим сайтом' },
-                        ]" :key="index" class="group relative bg-white/5 backdrop-blur-sm rounded-2xl p-8 hover:bg-white/10 transition-all duration-500 transform hover:-translate-y-2 animate-on-scroll">
+                                                   ]" :key="index" class="group relative bg-white/5 backdrop-blur-sm rounded-2xl p-8 hover:bg-white/10 transition-all duration-500 transform hover:-translate-y-2 animate-on-scroll">
                             <div class="relative z-10">
                                 <div class="w-16 h-16 bg-gradient-to-r from-pink-500 to-yellow-500 rounded-2xl mb-6 flex items-center justify-center text-3xl transform group-hover:rotate-6 transition-transform duration-300">
                                     {{ feature.icon }}

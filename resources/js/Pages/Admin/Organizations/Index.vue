@@ -37,7 +37,7 @@ watch(search, () => {
                 <input
                     v-model="search"
                     type="search"
-                    placeholder="Поиск по названию или slug"
+                    placeholder="Поиск по названию или слагу"
                     class="w-full max-w-md rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white placeholder:text-slate-500"
                 />
             </div>
@@ -50,7 +50,7 @@ watch(search, () => {
                                 Название
                             </th>
                             <th class="px-4 py-3">
-                                Slug
+                                Слаг
                             </th>
                             <th class="px-4 py-3">
                                 Тариф
