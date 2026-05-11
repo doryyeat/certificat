@@ -28,7 +28,7 @@ function navClass(active) {
                         :href="route('admin.dashboard')"
                         class="text-lg font-semibold tracking-tight text-white"
                     >
-                        GiftHub Admin
+                        GiftHub
                     </Link>
                 </div>
                 <nav class="flex flex-1 flex-col gap-1 p-4">
@@ -42,7 +42,7 @@ function navClass(active) {
                         :href="route('admin.register-requests.index')"
                         :class="navClass(route().current('admin.register-requests.*'))"
                     >
-                        Управление бизнесами (заявки)
+                        Управление заявками
                     </Link>
                     <Link
                         :href="route('admin.business-users.index')"
@@ -147,7 +147,7 @@ function navClass(active) {
                         :href="route('admin.register-requests.index')"
                         :active="route().current('admin.register-requests.*')"
                     >
-                        Заявки
+                        Управление заявками
                     </ResponsiveNavLink>
                     <ResponsiveNavLink
                         :href="route('admin.business-users.index')"

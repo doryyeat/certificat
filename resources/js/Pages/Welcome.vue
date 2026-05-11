@@ -32,18 +32,18 @@ const heroContent = computed(() => {
             badge: '🚀 Для бизнеса · Увеличьте продажи',
             title: 'Платформа для управления',
             titleGradient: 'подарочными сертификатами',
-            description: 'Создавайте, продавайте и отслеживайте подарочные сертификаты. Увеличьте средний чек и привлекайте новых клиентов с помощью умной системы.',
+            description: 'Создавайте шаблоны подарочных сертификатов, ведите продажи через каталог и заказы, гасите номинал в точках продаж и смотрите отчёты — всё в одном кабинете организации.',
             cta: 'Подать заявку',
             ctaLink: route('business.apply'),
             features: [
                 { icon: '📊', text: 'Аналитика продаж' },
-                { icon: '🎫', text: 'Умное разделение' },
-                { icon: '📍', text: 'Гео-таргетинг' },
-                { icon: '💳', text: 'Мгновенные выплаты' },
+                { icon: '🎫', text: 'Учёт номинала и погашений' },
+                { icon: '📍', text: 'Точки продаж и геоданные' },
+                { icon: '💳', text: 'Онлайн-оплата и статусы заказов' },
             ],
             stats: [
-                { value: '10K+', label: 'Сертификатов' },
-                { value: '1.2K+', label: 'Бизнесов' },
+                { value: '1000', label: 'Сертификатов' },
+                { value: '200', label: 'Бизнесов' },
                 { value: '98%', label: 'Довольных' },
             ]
         };
@@ -58,13 +58,13 @@ const heroContent = computed(() => {
             features: [
                 { icon: '🎁', text: 'Мгновенная доставка' },
                 { icon: '💳', text: 'Удобная оплата' },
-                { icon: '✨', text: 'Делитесь с друзьями' },
-                { icon: '🔔', text: 'Напоминания об истечении' },
+                { icon: '🔍', text: 'Каталог и фильтры по цене' },
+                { icon: '📄', text: 'PDF и данные сертификата на почту' },
             ],
             stats: [
-                { value: '50K+', label: 'Сертификатов' },
-                { value: '5K+', label: 'Заведений' },
-                { value: '4.8★', label: 'Рейтинг' },
+                { value: '1000', label: 'Сертификатов' },
+                { value: '200', label: 'Бизнесов' },
+                { value: '4.9', label: 'Рейтинг' },
             ]
         };
     }
@@ -170,9 +170,9 @@ onMounted(() => {
                         <template v-if="$page.props.auth?.user">
                             <!-- Для авторизованных пользователей показываем ссылки в зависимости от типа -->
                             <Link v-if="$page.props.auth.user.client_type === 'business'"
-                                  :href="route('business.dashboard')"
+                                  :href="route('certificates.index')"
                                   class="relative group px-6 py-2 overflow-hidden rounded-full bg-white/10 hover:bg-white/20 transition-all duration-300">
-                                <span class="relative z-10">Дашборд</span>
+                                <span class="relative z-10">Кабинет</span>
                             </Link>
                             <Link v-else-if="$page.props.auth.user.client_type === 'client'"
                                   :href="route('client.my-certificates')"
@@ -264,7 +264,7 @@ onMounted(() => {
                             <div class="relative z-10">
                                 <div class="flex items-center justify-between mb-8">
                                     <h3 class="text-2xl font-bold">
-                                        {{ selectedType === 'business' ? 'Ваш бизнес' : 'HoReCa Premium' }}
+                                        {{ selectedType === 'business' ? 'Кабинет организации' : 'Каталог сертификатов' }}
                                     </h3>
                                     <div class="flex -space-x-2">
                                         <div class="w-8 h-8 rounded-full bg-gradient-to-r from-pink-500 to-yellow-500 border-2 border-white"></div>
@@ -275,33 +275,42 @@ onMounted(() => {
 
                                 <template v-if="selectedType === 'business'">
                                     <div class="space-y-6">
+                                        <p class="text-sm text-gray-300 leading-relaxed">
+                                            Пример экрана: шаблоны сертификатов, активные позиции в каталоге, заказы и погашения в точках продаж — данные агрегируются для отчётов и тарифа.
+                                        </p>
                                         <div class="grid grid-cols-2 gap-4">
                                             <div class="bg-white/5 rounded-xl p-4">
-                                                <div class="text-sm text-gray-400">Активных</div>
-                                                <div class="text-3xl font-bold text-yellow-400">156</div>
+                                                <div class="text-sm text-gray-400">В каталоге</div>
+                                                <div class="text-3xl font-bold text-yellow-400">24</div>
                                             </div>
                                             <div class="bg-white/5 rounded-xl p-4">
-                                                <div class="text-sm text-gray-400">Продано</div>
-                                                <div class="text-3xl font-bold text-green-400">245K BYN</div>
+                                                <div class="text-sm text-gray-400">Точек продаж</div>
+                                                <div class="text-3xl font-bold text-green-400">6</div>
                                             </div>
                                         </div>
 
                                         <div class="bg-white/5 rounded-xl p-4">
                                             <div class="flex items-center justify-between mb-2">
-                                                <span class="text-sm font-medium">Использовано</span>
-                                                <span class="text-xs text-green-400">+23%</span>
+                                                <span class="text-sm font-medium">Погашено за месяц</span>
+                                                <span class="text-xs text-green-400">по данным аналитики</span>
                                             </div>
                                             <div class="w-full bg-white/10 rounded-full h-2">
-                                                <div class="bg-gradient-to-r from-pink-500 to-yellow-500 h-2 rounded-full" style="width: 67%"></div>
+                                                <div class="bg-gradient-to-r from-pink-500 to-yellow-500 h-2 rounded-full" style="width: 58%"></div>
                                             </div>
+                                        </div>
+                                        <div class="text-xs text-gray-400 border-t border-white/10 pt-4">
+                                            Демо-виджет: POS-гашение, менеджеры и брендирование PDF доступны после подключения организации.
                                         </div>
                                     </div>
                                 </template>
 
                                 <template v-else>
-                                    <div class="grid grid-cols-2 gap-4 mb-8">
+                                    <p class="text-sm text-gray-300 mb-6 leading-relaxed">
+                                        Вы выбираете сертификат у организации из каталога, оплачиваете заказ онлайн и получаете подтверждение; купленные сертификаты и PDF доступны в личном кабинете покупателя.
+                                    </p>
+                                    <div class="grid grid-cols-2 gap-4 mb-6">
                                         <div class="space-y-2">
-                                            <div class="w-full aspect-square bg-white/5 rounded-2xl flex items-center justify-center animate-pulse">
+                                            <div class="w-full aspect-square bg-white/5 rounded-2xl flex items-center justify-center">
                                                 <div class="grid grid-cols-3 gap-1 p-2">
                                                     <div v-for="i in 9" :key="i"
                                                          class="w-2 h-2 bg-white/30 rounded"
@@ -309,49 +318,31 @@ onMounted(() => {
                                                     </div>
                                                 </div>
                                             </div>
-                                            <p class="text-xs text-center text-gray-400">QR код</p>
+                                            <p class="text-xs text-center text-gray-400">Превью карточки в каталоге</p>
                                         </div>
 
                                         <div class="space-y-4">
                                             <div class="bg-white/5 rounded-xl p-4">
-                                                <div class="text-sm text-gray-400">Номинал</div>
-                                                <div class="text-3xl font-bold text-yellow-400 animate-bounce">
-                                                    5 000 BYN
+                                                <div class="text-sm text-gray-400">Номинал к оплате</div>
+                                                <div class="text-3xl font-bold text-yellow-400">
+                                                    100 BYN
                                                 </div>
                                             </div>
 
                                             <div class="bg-white/5 rounded-xl p-4">
-                                                <div class="text-sm text-gray-400">Баланс</div>
-                                                <div class="text-2xl font-bold text-green-400">3 250 BYN</div>
-                                                <div class="w-full bg-white/10 rounded-full h-1.5 mt-2">
-                                                    <div class="bg-gradient-to-r from-pink-500 to-yellow-500 h-1.5 rounded-full" style="width: 65%"></div>
-                                                </div>
+                                                <div class="text-sm text-gray-400">Статус заказа</div>
+                                                <div class="text-lg font-bold text-green-400">Оплачен</div>
+                                                <div class="text-xs text-gray-400 mt-2">Переход к оплате из карточки сертификата</div>
                                             </div>
                                         </div>
                                     </div>
 
                                     <div class="bg-white/5 rounded-xl p-4">
-                                        <div class="flex items-center justify-between mb-3">
-
-                                        </div>
-
-                                        <div class="flex items-center space-x-2">
-                                            <div class="flex -space-x-2">
-                                                <div class="w-8 h-8 rounded-full bg-gradient-to-r from-pink-500 to-yellow-500 border-2 border-white/50 transform hover:scale-110 transition-transform cursor-pointer"></div>
-                                                <div class="w-8 h-8 rounded-full bg-gradient-to-r from-yellow-500 to-green-500 border-2 border-white/50 transform hover:scale-110 transition-transform cursor-pointer"></div>
-                                                <div class="w-8 h-8 rounded-full bg-gradient-to-r from-green-500 to-blue-500 border-2 border-white/50 transform hover:scale-110 transition-transform cursor-pointer"></div>
-                                                <div class="w-8 h-8 rounded-full bg-white/20 border-2 border-white/50 flex items-center justify-center text-sm font-bold hover:bg-white/30 transition-colors cursor-pointer">
-                                                    +3
-                                                </div>
-                                            </div>
-
-                                            <div class="flex-1 h-8 bg-white/5 rounded-full overflow-hidden">
-                                                <div class="h-full bg-gradient-to-r from-pink-500 to-yellow-500 rounded-full animate-pulse" style="width: 67%"></div>
-                                            </div>
-                                        </div>
-
-                                        <div class="mt-3 text-xs text-gray-400">
-                                            67% сертификатов разделены · +34% к среднему чеку
+                                        <div class="text-sm font-medium mb-2">Мои сертификаты</div>
+                                        <div class="flex items-center gap-2 text-xs text-gray-400">
+                                            <span class="rounded bg-white/10 px-2 py-1">PDF</span>
+                                            <span class="rounded bg-white/10 px-2 py-1">История операций</span>
+                                            <span class="rounded bg-white/10 px-2 py-1">Профиль</span>
                                         </div>
                                     </div>
                                 </template>
@@ -385,7 +376,7 @@ onMounted(() => {
                 <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                     <template v-if="selectedType === 'business'">
                         <div v-for="(feature, index) in [
-                            { icon: '💰', title: '0% комиссии', desc: 'Первые 50 сертификатов бесплатно' },
+                            { icon: '💳', title: 'Тарифы', desc: 'Тарифный план с лимитами на сертификаты, аналитику и функции кабинета — смена тарифа в разделе «Тариф».' },
                             { icon: '📊', title: 'Аналитика', desc: 'Детальная статистика продаж' },
                             { icon: '🎨', title: 'Шаблоны', desc: 'Готовые дизайны сертификатов' },
                                                    ]" :key="index" class="group relative bg-white/5 backdrop-blur-sm rounded-2xl p-8 hover:bg-white/10 transition-all duration-500 transform hover:-translate-y-2 animate-on-scroll">
@@ -403,7 +394,7 @@ onMounted(() => {
                         <div v-for="(feature, index) in [
                             { icon: '🎨', title: 'Большой выбор', desc: 'Тысячи сертификатов на любой вкус' },
                             { icon: '⚡', title: 'Мгновенно', desc: 'Получите PDF на email сразу' },
-                            { icon: '🔔', title: 'Напоминания', desc: 'Не пропустите срок действия' },
+                            { icon: '🛡️', title: 'Прозрачные условия', desc: 'Срок действия и правила использования указаны в карточке сертификата до покупки.' },
                         ]" :key="index" class="group relative bg-white/5 backdrop-blur-sm rounded-2xl p-8 hover:bg-white/10 transition-all duration-500 transform hover:-translate-y-2 animate-on-scroll">
                             <div class="relative z-10">
                                 <div class="w-16 h-16 bg-gradient-to-r from-pink-500 to-yellow-500 rounded-2xl mb-6 flex items-center justify-center text-3xl transform group-hover:rotate-6 transition-transform duration-300">
@@ -432,9 +423,9 @@ onMounted(() => {
                             : 'Найдите идеальный подарок для близких и друзей' }}
                         </p>
 
-                        <Link :href="selectedType === 'business' ? route('register') : route('client.certificates.index')"
+                        <Link :href="selectedType === 'business' ? route('business.apply') : route('client.certificates.index')"
                               class="inline-flex items-center space-x-3 bg-white text-purple-600 px-10 py-5 rounded-2xl font-bold text-lg hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl group">
-                            <span>{{ selectedType === 'business' ? 'Начать бесплатно' : 'Выбрать сертификат' }}</span>
+                            <span>{{ selectedType === 'business' ? 'Подать заявку' : 'Выбрать сертификат' }}</span>
                             <svg class="w-5 h-5 group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
                             </svg>

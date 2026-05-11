@@ -136,7 +136,7 @@ const initials = computed(() => {
                                     <div class="font-medium">{{ userName }}</div>
                                 </div>
                                 <div>
-                                    <div class="text-sm text-gray-500">Email</div>
+                                    <div class="text-sm text-gray-500">Электронная почта</div>
                                     <div class="font-medium">{{ userEmail }}</div>
                                 </div>
                             </div>

@@ -47,7 +47,7 @@ const props = defineProps({
                                 <div class="font-medium">{{ user.name }}</div>
                             </div>
                             <div>
-                                <div class="text-sm text-gray-500">Email</div>
+                                <div class="text-sm text-gray-500">Электронная почта</div>
                                 <div class="font-medium">{{ user.email }}</div>
                             </div>
                             <div v-if="user.phone">

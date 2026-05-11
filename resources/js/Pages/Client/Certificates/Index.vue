@@ -51,6 +51,21 @@ const resetFilters = () => {
     sort.value = 'default';
     applyFilters();
 };
+
+/** Подписи пагинации Laravel по умолчанию на английском */
+function paginationLinkLabel(html) {
+    if (!html) {
+        return '';
+    }
+    const lower = String(html).toLowerCase();
+    if (lower.includes('previous')) {
+        return 'Назад';
+    }
+    if (lower.includes('next')) {
+        return 'Вперёд';
+    }
+    return html;
+}
 </script>
 
 <template>
@@ -182,9 +197,9 @@ const resetFilters = () => {
 
                 <!-- Пагинация -->
                 <div class="mt-8">
-                    <Link v-for="link in certificates.links" :key="link.label"
+                    <Link v-for="link in certificates.links" :key="String(link.label) + (link.url || '')"
                           :href="link.url || '#'"
-                          v-html="link.label"
+                          v-html="paginationLinkLabel(link.label)"
                           class="px-3 py-2 mx-1 rounded"
                           :class="{
                               'bg-purple-600 text-white': link.active,

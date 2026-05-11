@@ -21,12 +21,13 @@ class DatabaseSeeder extends Seeder
         $platformAdmin = User::firstOrCreate(
             ['email' => 'platform@example.com'],
             [
-                'name' => 'Platform Admin',
+                'name' => 'Администратор',
                 'password' => bcrypt('password'),
                 'organization_id' => null,
                 'client_type' => null,
             ],
         );
+        $platformAdmin->update(['name' => 'Администратор']);
         if (! $platformAdmin->hasRole('admin')) {
             $platformAdmin->assignRole('admin');
         }

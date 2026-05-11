@@ -76,7 +76,7 @@ const validateInn = (value) => {
                                     <div v-if="form.errors.name" class="mt-1 text-sm text-red-600">{{ form.errors.name }}</div>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Email *</label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Электронная почта *</label>
                                     <input
                                         v-model="form.email"
                                         type="email"

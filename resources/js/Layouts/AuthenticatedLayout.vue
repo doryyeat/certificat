@@ -22,7 +22,15 @@ const showingNavigationDropdown = ref(false);
                         <div class="flex">
                             <!-- Logo -->
                             <div class="flex shrink-0 items-center">
-                                <Link :href="route('dashboard')">
+                                <Link
+                                    :href="
+                                        $page.props.auth.isBusiness
+                                            ? route('certificates.index')
+                                            : $page.props.auth.isManager
+                                              ? route('manager.redeem')
+                                              : route('dashboard')
+                                    "
+                                >
                                     <ApplicationLogo
                                         class="block h-9 w-auto fill-current text-gray-800"
                                     />
@@ -35,12 +43,6 @@ const showingNavigationDropdown = ref(false);
                                 class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex"
                             >
                                 <NavLink
-                                    :href="route('dashboard')"
-                                    :active="route().current('dashboard')"
-                                >
-                                    Dashboard
-                                </NavLink>
-                                <NavLink
                                     :href="route('certificates.index')"
                                     :active="route().current('certificates.*')"
                                 >
@@ -50,19 +52,7 @@ const showingNavigationDropdown = ref(false);
                                     :href="route('stores.index')"
                                     :active="route().current('stores.*')"
                                 >
-                                    Магазины
-                                </NavLink>
-                                <NavLink
-                                    :href="route('customers.index')"
-                                    :active="route().current('customers.*')"
-                                >
-                                    Клиенты
-                                </NavLink>
-                                <NavLink
-                                    :href="route('orders.index')"
-                                    :active="route().current('orders.*')"
-                                >
-                                    Заказы
+                                    Точки продаж
                                 </NavLink>
                                 <NavLink
                                     :href="route('business.tariff.show')"
@@ -108,7 +98,7 @@ const showingNavigationDropdown = ref(false);
                                     :href="route('dashboard')"
                                     :active="route().current('dashboard')"
                                 >
-                                    Dashboard
+                                    Дашборд
                                 </NavLink>
                             </div>
                         </div>
@@ -211,12 +201,6 @@ const showingNavigationDropdown = ref(false);
                     class="sm:hidden"
                 >
                     <div class="space-y-1 pb-3 pt-2">
-                        <ResponsiveNavLink
-                            :href="route('dashboard')"
-                            :active="route().current('dashboard')"
-                        >
-                            Dashboard
-                        </ResponsiveNavLink>
                         <template v-if="$page.props.auth.isBusiness">
                             <ResponsiveNavLink
                                 :href="route('certificates.index')"
@@ -228,31 +212,47 @@ const showingNavigationDropdown = ref(false);
                                 :href="route('stores.index')"
                                 :active="route().current('stores.*')"
                             >
-                                Магазины
-                            </ResponsiveNavLink>
-                            <ResponsiveNavLink
-                                :href="route('customers.index')"
-                                :active="route().current('customers.*')"
-                            >
-                                Клиенты
-                            </ResponsiveNavLink>
-                            <ResponsiveNavLink
-                                :href="route('products.index')"
-                                :active="route().current('products.*')"
-                            >
-                                Товары
-                            </ResponsiveNavLink>
-                            <ResponsiveNavLink
-                                :href="route('orders.index')"
-                                :active="route().current('orders.*')"
-                            >
-                                Заказы
+                                Точки продаж
                             </ResponsiveNavLink>
                             <ResponsiveNavLink
                                 :href="route('business.tariff.show')"
                                 :active="route().current('business.tariff.*')"
                             >
                                 Тариф
+                            </ResponsiveNavLink>
+                            <ResponsiveNavLink
+                                :href="route('business.branding.show')"
+                                :active="route().current('business.branding.*')"
+                            >
+                                Брендирование
+                            </ResponsiveNavLink>
+                            <ResponsiveNavLink
+                                :href="route('business.analytics')"
+                                :active="route().current('business.analytics*')"
+                            >
+                                Аналитика
+                            </ResponsiveNavLink>
+                            <ResponsiveNavLink
+                                :href="route('business.managers.index')"
+                                :active="route().current('business.managers.*')"
+                            >
+                                Менеджеры
+                            </ResponsiveNavLink>
+                        </template>
+                        <template v-else-if="$page.props.auth.isManager">
+                            <ResponsiveNavLink
+                                :href="route('manager.redeem')"
+                                :active="route().current('manager.*')"
+                            >
+                                Гашение
+                            </ResponsiveNavLink>
+                        </template>
+                        <template v-else>
+                            <ResponsiveNavLink
+                                :href="route('dashboard')"
+                                :active="route().current('dashboard')"
+                            >
+                                Дашборд
                             </ResponsiveNavLink>
                         </template>
                     </div>
@@ -274,14 +274,14 @@ const showingNavigationDropdown = ref(false);
 
                         <div class="mt-3 space-y-1">
                             <ResponsiveNavLink :href="route('profile.edit')">
-                                Profile
+                                Профиль
                             </ResponsiveNavLink>
                             <ResponsiveNavLink
                                 :href="route('logout')"
                                 method="post"
                                 as="button"
                             >
-                                Log Out
+                                Выйти
                             </ResponsiveNavLink>
                         </div>
                     </div>
