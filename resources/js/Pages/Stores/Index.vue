@@ -3,7 +3,7 @@
         <template #header>
             <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
                 <h2 class="text-xl font-semibold text-gray-800">
-                    Точки продаж (магазины)
+                    Точки продаж
                 </h2>
                 <button
                     @click="openAddModal"
