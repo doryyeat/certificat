@@ -72,10 +72,6 @@ defineProps({
                                     <span class="text-gray-500">
                                         Куплен: {{ new Date(certificate.created_at).toLocaleDateString() }}
                                     </span>
-                                    <Link :href="route('client.my-certificates.show', certificate.id)"
-                                          class="text-purple-600 hover:text-purple-800 font-medium">
-                                        Подробнее →
-                                    </Link>
                                 </div>
                             </div>
                         </div>

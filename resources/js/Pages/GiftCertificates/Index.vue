@@ -303,12 +303,6 @@ const statusColor = (s) => {
                         </p>
                         <div class="mt-auto flex flex-wrap gap-2 border-t border-gray-100 pt-4">
                             <Link
-                                :href="route('certificates.show', certificate.id)"
-                                class="text-sm font-medium text-indigo-600 hover:text-indigo-800"
-                            >
-                                Подробнее
-                            </Link>
-                            <Link
                                 :href="route('certificates.edit', certificate.id)"
                                 class="text-sm text-gray-600 hover:text-gray-900"
                             >
