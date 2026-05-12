@@ -17,7 +17,19 @@ const expiresFrom = ref(props.filters.expires_from || '');
 const expiresTo = ref(props.filters.expires_to || '');
 const sortBy = ref(props.filters.sort_by || 'created_at');
 const sortDir = ref(props.filters.sort_dir || 'desc');
-
+function paginationLinkLabel(html) {
+    if (!html) {
+        return '';
+    }
+    const lower = String(html).toLowerCase();
+    if (lower.includes('previous')) {
+        return 'Назад';
+    }
+    if (lower.includes('next')) {
+        return 'Вперёд';
+    }
+    return html;
+}
 watch(
     [search, status, category, amountMin, amountMax, expiresFrom, expiresTo, sortBy, sortDir],
     () => {
@@ -326,7 +338,7 @@ const statusColor = (s) => {
                     <button
                         v-for="link in certificates.links"
                         :key="link.label"
-                        v-html="link.label"
+                        v-html="paginationLinkLabel(link.label)"
                         type="button"
                         :class="[
                             'relative inline-flex items-center border px-3 py-1 text-xs font-medium focus:z-10 focus:outline-none',
