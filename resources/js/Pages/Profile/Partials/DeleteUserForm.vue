@@ -71,7 +71,7 @@ const closeModal = () => {
                 <div class="mt-6">
                     <InputLabel
                         for="password"
-                        value="Password"
+                        value="Пароль"
                         class="sr-only"
                     />
 
@@ -90,7 +90,7 @@ const closeModal = () => {
 
                 <div class="mt-6 flex justify-end">
                     <SecondaryButton @click="closeModal">
-                        Cancel
+                        Отменить
                     </SecondaryButton>
 
                     <DangerButton
