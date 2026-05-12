@@ -42,13 +42,13 @@ const closeModal = () => {
     <section class="space-y-6">
         <header>
             <h2 class="text-lg font-medium text-gray-900">
-                Delete Account
+                Удалить аккаунт
             </h2>
 
             <p class="mt-1 text-sm text-gray-600">
-                Once your account is deleted, all of its resources and data will
-                be permanently deleted. Before deleting your account, please
-                download any data or information that you wish to retain.
+                После удаления вашей учетной записи все ее ресурсы и данные будут
+                безвозвратно удалены. Перед удалением учетной записи, пожалуйста,
+                загрузите любые данные или информацию, которые вы хотите сохранить.
             </p>
         </header>
 
@@ -59,13 +59,13 @@ const closeModal = () => {
                 <h2
                     class="text-lg font-medium text-gray-900"
                 >
-                    Are you sure you want to delete your account?
+                    Вы уверены, что хотите удалить свой аккаунт?
                 </h2>
 
                 <p class="mt-1 text-sm text-gray-600">
-                    Once your account is deleted, all of its resources and data
-                    will be permanently deleted. Please enter your password to
-                    confirm you would like to permanently delete your account.
+                    После удаления вашей учетной записи все ее ресурсы и данные
+                    будут безвозвратно удалены. Пожалуйста, введите свой пароль, чтобы
+                    подтвердить, что вы хотите навсегда удалить свою учетную запись.
                 </p>
 
                 <div class="mt-6">
@@ -99,7 +99,7 @@ const closeModal = () => {
                         :disabled="form.processing"
                         @click="deleteUser"
                     >
-                        Delete Account
+                        Удалить аккаунт
                     </DangerButton>
                 </div>
             </div>

@@ -26,11 +26,11 @@ const form = useForm({
     <section>
         <header>
             <h2 class="text-lg font-medium text-gray-900">
-                Profile Information
+                Информация профиля
             </h2>
 
             <p class="mt-1 text-sm text-gray-600">
-                Update your account's profile information and email address.
+                Обновите информацию в профиле вашей учетной записи и адрес электронной почты.
             </p>
         </header>
 
@@ -78,7 +78,7 @@ const form = useForm({
                         as="button"
                         class="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                     >
-                        Click here to re-send the verification email.
+                        Нажмите здесь, чтобы повторно отправить письмо с подтверждением.
                     </Link>
                 </p>
 
@@ -86,7 +86,7 @@ const form = useForm({
                     v-show="status === 'verification-link-sent'"
                     class="mt-2 text-sm font-medium text-green-600"
                 >
-                    A new verification link has been sent to your email address.
+                    На ваш электронный адрес отправлена новая ссылка для подтверждения.
                 </div>
             </div>
 
@@ -103,7 +103,7 @@ const form = useForm({
                         v-if="form.recentlySuccessful"
                         class="text-sm text-gray-600"
                     >
-                        Saved.
+                        Сохранено.
                     </p>
                 </Transition>
             </div>
