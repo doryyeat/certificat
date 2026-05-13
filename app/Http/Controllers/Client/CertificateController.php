@@ -46,7 +46,7 @@ class CertificateController extends Controller
 
         $certificates = GiftCertificate::query()
             ->with(['organization', 'template', 'store'])
-            ->where('status', GiftCertificate::STATUS_ACTIVE)
+            ->where('gift_certificates.status', GiftCertificate::STATUS_ACTIVE) // ← ИСПРАВЛЕНО: добавлена таблица
             ->where('balance', '>', 0)
             ->whereNull('source_certificate_id')
             ->whereNull('sold_at')
@@ -70,7 +70,7 @@ class CertificateController extends Controller
                 $q->leftJoin('order_items', 'order_items.gift_certificate_id', '=', 'gift_certificates.id')
                     ->leftJoin('orders', function ($join) use ($since) {
                         $join->on('orders.id', '=', 'order_items.order_id')
-                            ->where('orders.status', '=', Order::STATUS_PAID)
+                            ->where('orders.status', '=', Order::STATUS_PAID) // Здесь тоже лучше указать таблицу
                             ->where('orders.paid_at', '>=', $since);
                     })
                     ->select('gift_certificates.*')
@@ -98,7 +98,6 @@ class CertificateController extends Controller
             ],
         ]);
     }
-
     /**
      * Показать детали сертификата
      */
