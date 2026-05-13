@@ -97,6 +97,7 @@ class CertificateController extends Controller
                 'sort' => $sort,
             ],
         ]);
+
     }
     /**
      * Показать детали сертификата
